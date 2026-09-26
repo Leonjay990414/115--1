@@ -1,9 +1,9 @@
 /**
  * 智光商工 115學年度 第62屆校慶園遊會 - 客製化商品專案 (ZG Shop)
- * 核心資料庫模型、RBAC 權限矩陣與初始資料
+ * 核心資料庫模型、商品庫存管理 (CRUD)、RBAC 驗證碼安全矩陣與學生帳號唯一性約束
  */
 
-// 1. 商品資料定義 (5 大客製化商品)
+// 1. 商品資料定義 (5 大客製化商品，預設庫存狀態：in_stock 現貨供應)
 const INITIAL_PRODUCTS = [
   {
     id: "prod_mug",
@@ -18,6 +18,7 @@ const INITIAL_PRODUCTS = [
     minHeight: 800,
     image: "assets/images/mug.jpg",
     badge: "人氣首選",
+    stockStatus: "in_stock", // in_stock (現貨) / restocking (補貨中) / out_of_stock (已搶光)
     description: "智光校慶限定高規格陶瓷馬克杯，經 1280°C 高溫燒製，塗層均勻細緻，熱昇華顯色飽滿耐清洗。"
   },
   {
@@ -33,6 +34,7 @@ const INITIAL_PRODUCTS = [
     minHeight: 1080,
     image: "assets/images/coaster.jpg",
     badge: "實用必備",
+    stockStatus: "in_stock",
     description: "微米毛細孔能快速吸乾冷飲水珠，保持桌面乾爽；底部貼合軟木墊防刮桌面。"
   },
   {
@@ -48,6 +50,7 @@ const INITIAL_PRODUCTS = [
     minHeight: 1080,
     image: "assets/images/badge.jpg",
     badge: "超值紀念",
+    stockStatus: "in_stock",
     description: "高飽和色彩還原，表面覆蓋防刮耐磨防水光膜，背附安全旋轉別針，書包外套隨心裝飾。"
   },
   {
@@ -63,6 +66,7 @@ const INITIAL_PRODUCTS = [
     minHeight: 1200,
     image: "assets/images/cardholder.jpg",
     badge: "校園通行",
+    stockStatus: "in_stock",
     description: "高透光防消磁視窗，附贈同色精緻皮革頸掛繩，雙面卡槽便於收納學生證與捷運卡。"
   },
   {
@@ -78,6 +82,7 @@ const INITIAL_PRODUCTS = [
     minHeight: 1080,
     image: "assets/images/passport.jpg",
     badge: "出國尊榮",
+    stockStatus: "in_stock",
     description: "全包覆精緻車縫邊，內置多功能機票與卡片插槽，精美燙印客製專屬圖騰與字體。"
   }
 ];
@@ -90,12 +95,13 @@ const RBAC_ACCOUNTS = [
     roleName: "總召 (主辦人)",
     roleLevel: "Super Admin",
     dept: "大會核心指揮部",
-    permissions: ["all", "dashboard", "qc", "production", "finance", "delivery", "export", "wipe", "settings"],
+    permissions: ["all", "dashboard", "products", "qc", "production", "finance", "delivery", "export", "wipe", "auth_mgr"],
     canExportExcel: true,
     canPrintA4: true,
     canViewFullPII: true,
     canApproveQC: true,
-    canUpdateProd: true
+    canUpdateProd: true,
+    canManageProducts: true
   },
   {
     username: "admin_web_core",
@@ -103,12 +109,13 @@ const RBAC_ACCOUNTS = [
     roleName: "AI 網站組 (核心)",
     roleLevel: "Developer",
     dept: "AI 資訊網站組",
-    permissions: ["dashboard", "qc", "production", "finance", "delivery", "export", "wipe", "settings"],
+    permissions: ["dashboard", "products", "qc", "production", "finance", "delivery", "export", "wipe", "auth_mgr"],
     canExportExcel: true,
     canPrintA4: true,
     canViewFullPII: true,
     canApproveQC: true,
-    canUpdateProd: true
+    canUpdateProd: true,
+    canManageProducts: true
   },
   {
     username: "admin_web_staff",
@@ -116,12 +123,13 @@ const RBAC_ACCOUNTS = [
     roleName: "AI 網站組 (招募)",
     roleLevel: "Developer",
     dept: "AI 資訊網站組",
-    permissions: ["dashboard", "qc", "production", "finance", "delivery", "export"],
+    permissions: ["dashboard", "products", "qc", "production", "finance", "delivery", "export"],
     canExportExcel: true,
     canPrintA4: true,
     canViewFullPII: true,
     canApproveQC: true,
-    canUpdateProd: true
+    canUpdateProd: true,
+    canManageProducts: false
   },
   {
     username: "admin_art_core",
@@ -132,9 +140,10 @@ const RBAC_ACCOUNTS = [
     permissions: ["qc", "view_orders"],
     canExportExcel: false,
     canPrintA4: false,
-    canViewFullPII: false, // 美術組專注審核圖檔
+    canViewFullPII: false,
     canApproveQC: true,
-    canUpdateProd: false
+    canUpdateProd: false,
+    canManageProducts: false
   },
   {
     username: "admin_art_staff",
@@ -147,7 +156,8 @@ const RBAC_ACCOUNTS = [
     canPrintA4: false,
     canViewFullPII: false,
     canApproveQC: true,
-    canUpdateProd: false
+    canUpdateProd: false,
+    canManageProducts: false
   },
   {
     username: "admin_maker_core",
@@ -155,12 +165,13 @@ const RBAC_ACCOUNTS = [
     roleName: "商品製作組 (核心)",
     roleLevel: "Production",
     dept: "產線加工製造組",
-    permissions: ["production", "view_orders"],
-    canExportExcel: true, // 供機台對接下載
+    permissions: ["production", "products", "view_orders"],
+    canExportExcel: true,
     canPrintA4: false,
     canViewFullPII: false,
     canApproveQC: false,
-    canUpdateProd: true
+    canUpdateProd: true,
+    canManageProducts: true
   },
   {
     username: "admin_maker_staff",
@@ -169,119 +180,128 @@ const RBAC_ACCOUNTS = [
     roleLevel: "Production",
     dept: "產線加工製造組",
     permissions: ["production", "view_orders"],
-    canExportExcel: true,
+    canExportExcel: false,
     canPrintA4: false,
     canViewFullPII: false,
     canApproveQC: false,
-    canUpdateProd: true
+    canUpdateProd: true,
+    canManageProducts: false
   },
   {
     username: "admin_finance_core",
     password: "ZgShop@2026_08",
-    roleName: "財務組 (核心)",
+    roleName: "財務出納組 (核心)",
     roleLevel: "Finance",
-    dept: "帳務金流出納組",
-    permissions: ["dashboard", "finance", "export", "print_a4"],
+    dept: "財務會計出納組",
+    permissions: ["finance", "dashboard", "export"],
     canExportExcel: true,
     canPrintA4: true,
     canViewFullPII: true,
     canApproveQC: false,
-    canUpdateProd: false
+    canUpdateProd: false,
+    canManageProducts: false
   },
   {
     username: "admin_finance_staff",
     password: "ZgShop@2026_09",
-    roleName: "財務組 (招募)",
+    roleName: "財務出納組 (招募)",
     roleLevel: "Finance",
-    dept: "帳務金流出納組",
-    permissions: ["dashboard", "finance", "export", "print_a4"],
+    dept: "財務會計出納組",
+    permissions: ["finance"],
+    canExportExcel: false,
+    canPrintA4: true,
+    canViewFullPII: true,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "admin_logistics_core",
+    password: "ZgShop@2026_10",
+    roleName: "現場外送組 (核心)",
+    roleLevel: "Delivery",
+    dept: "班級配送物流組",
+    permissions: ["delivery", "view_orders"],
+    canExportExcel: false,
+    canPrintA4: false,
+    canViewFullPII: true,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "admin_logistics_staff",
+    password: "ZgShop@2026_11",
+    roleName: "現場外送組 (招募)",
+    roleLevel: "Delivery",
+    dept: "班級配送物流組",
+    permissions: ["delivery", "view_orders"],
+    canExportExcel: false,
+    canPrintA4: false,
+    canViewFullPII: true,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "admin_marketing_core",
+    password: "ZgShop@2026_12",
+    roleName: "公關行銷組 (核心)",
+    roleLevel: "Marketing",
+    dept: "社群公關推廣組",
+    permissions: ["dashboard", "view_orders"],
+    canExportExcel: false,
+    canPrintA4: false,
+    canViewFullPII: false,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "admin_pr_core",
+    password: "ZgShop@2026_13",
+    roleName: "企劃宣傳組 (核心)",
+    roleLevel: "PR",
+    dept: "企劃宣傳組",
+    permissions: ["dashboard", "view_orders"],
+    canExportExcel: false,
+    canPrintA4: false,
+    canViewFullPII: false,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "admin_equipment_core",
+    password: "ZgShop@2026_14",
+    roleName: "活動設備組 (核心)",
+    roleLevel: "Support",
+    dept: "機台電力維護組",
+    permissions: ["dashboard"],
+    canExportExcel: false,
+    canPrintA4: false,
+    canViewFullPII: false,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "admin_supervisor",
+    password: "ZgShop@2026_15",
+    roleName: "指導老師/大會督導",
+    roleLevel: "Auditor",
+    dept: "校慶籌備指導委員會",
+    permissions: ["dashboard", "export"],
     canExportExcel: true,
     canPrintA4: true,
     canViewFullPII: true,
     canApproveQC: false,
-    canUpdateProd: false
-  },
-  {
-    username: "staff_plan_A",
-    password: "ZgStaff@2026_10",
-    roleName: "企劃組 (人員A)",
-    roleLevel: "Marketing",
-    dept: "企劃文案組",
-    permissions: ["dashboard", "view_orders"],
-    canExportExcel: false,
-    canPrintA4: false,
-    canViewFullPII: false, // 個資遮蔽保護
-    canApproveQC: false,
-    canUpdateProd: false
-  },
-  {
-    username: "staff_plan_B",
-    password: "ZgStaff@2026_11",
-    roleName: "企劃組 (人員B)",
-    roleLevel: "Marketing",
-    dept: "企劃文案組",
-    permissions: ["dashboard", "view_orders"],
-    canExportExcel: false,
-    canPrintA4: false,
-    canViewFullPII: false,
-    canApproveQC: false,
-    canUpdateProd: false
-  },
-  {
-    username: "staff_promo_A",
-    password: "ZgStaff@2026_12",
-    roleName: "宣傳組 (人員A)",
-    roleLevel: "Promotion",
-    dept: "宣傳公關組",
-    permissions: ["dashboard", "view_orders"],
-    canExportExcel: false,
-    canPrintA4: false,
-    canViewFullPII: false,
-    canApproveQC: false,
-    canUpdateProd: false
-  },
-  {
-    username: "staff_promo_B",
-    password: "ZgStaff@2026_13",
-    roleName: "宣傳組 (人員B)",
-    roleLevel: "Promotion",
-    dept: "宣傳公關組",
-    permissions: ["dashboard", "view_orders"],
-    canExportExcel: false,
-    canPrintA4: false,
-    canViewFullPII: false,
-    canApproveQC: false,
-    canUpdateProd: false
-  },
-  {
-    username: "staff_delivery_A",
-    password: "ZgStaff@2026_14",
-    roleName: "外送組 (人員A)",
-    roleLevel: "Logistics",
-    dept: "外送物流組",
-    permissions: ["delivery", "view_orders", "print_return_notice"],
-    canExportExcel: false,
-    canPrintA4: false,
-    canViewFullPII: false, // 個資遮蔽，僅配送班級
-    canApproveQC: false,
-    canUpdateProd: false
-  },
-  {
-    username: "staff_delivery_B",
-    password: "ZgStaff@2026_15",
-    roleName: "外送組 (人員B)",
-    roleLevel: "Logistics",
-    dept: "外送物流組",
-    permissions: ["delivery", "view_orders", "print_return_notice"],
-    canExportExcel: false,
-    canPrintA4: false,
-    canViewFullPII: false,
-    canApproveQC: false,
-    canUpdateProd: false
+    canUpdateProd: false,
+    canManageProducts: false
   }
 ];
 
-// 3. 初始預設訂單資料 (用於展示拆單邏輯、各組審核狀態、第4天退件防漏接)
+// 3. 預設模擬訂單 (符合資料庫正規化設計)
 const INITIAL_ORDERS = [
   {
     id: "ZG2026-0001-MUG",
@@ -302,13 +322,13 @@ const INITIAL_ORDERS = [
     notes: "杯身正面請置中對齊，不要裁切到右下角年份字樣",
     imageUrl: "assets/images/mug.jpg",
     imageRes: "1920 x 1080 (合格 1080P)",
-    qcStatus: "審核通過", // 待審核 / 審核通過 / 退件
+    qcStatus: "審核通過",
     qcReviewer: "admin_art_core",
     qcNote: "解析度 300 DPI 達標，符合出血與轉印規格。",
     qcDate: "2026-09-24 10:30:00",
-    prodStatus: "已完成", // 待印製 / 轉印中 / 已完成
-    paymentStatus: "已收款", // 未收款 / 已收款
-    deliveryStatus: "已送達班級", // 待配送 / 配送中 / 已送達班級
+    prodStatus: "已完成",
+    paymentStatus: "已收款",
+    deliveryStatus: "已送達班級",
     createdAt: "2026-09-24 09:15:00",
     daysSinceReview: 2
   },
@@ -359,24 +379,53 @@ const INITIAL_ORDERS = [
     totalPrice: 80,
     notes: "線條插畫請維持黑白高對比度",
     imageUrl: "assets/images/coaster.jpg",
-    imageRes: "1600 x 1600 (合格 1080P)",
-    qcStatus: "待審核",
-    qcReviewer: "",
-    qcNote: "",
-    qcDate: "",
+    imageRes: "2048 x 2048 (合格 1080P)",
+    qcStatus: "審核通過",
+    qcReviewer: "admin_art_staff",
+    qcNote: "高解析度向量圖，色彩分層乾淨。",
+    qcDate: "2026-09-23 15:20:00",
     prodStatus: "待印製",
     paymentStatus: "未收款",
     deliveryStatus: "待配送",
-    createdAt: "2026-09-26 11:20:00",
-    daysSinceReview: 0
+    createdAt: "2026-09-23 14:00:00",
+    daysSinceReview: 3
   },
   {
-    id: "ZG2026-0003-CRD",
+    id: "ZG2026-0003-PSP",
     parentOrderId: "ZG2026-0003",
     slipNo: "000004",
-    studentId: "112089",
-    className: "普三2",
-    seatNo: "33",
+    studentId: "111889",
+    className: "廣三2",
+    seatNo: "12",
+    name: "張立誠",
+    gender: "男",
+    phone: "0922334455",
+    productId: "prod_passport",
+    productCode: "PSP",
+    productName: "尊榮客製化皮革護照套",
+    quantity: 1,
+    unitPrice: 180,
+    totalPrice: 180,
+    notes: "右下角請壓印金文字樣【ZKVS 2026】",
+    imageUrl: "assets/images/passport.jpg",
+    imageRes: "1920 x 1400 (合格 1080P)",
+    qcStatus: "審核通過",
+    qcReviewer: "admin_art_core",
+    qcNote: "燙金排版尺寸符合鋼模尺寸規格。",
+    qcDate: "2026-09-24 11:00:00",
+    prodStatus: "待印製",
+    paymentStatus: "未收款",
+    deliveryStatus: "待配送",
+    createdAt: "2026-09-24 10:10:00",
+    daysSinceReview: 2
+  },
+  {
+    id: "ZG2026-0004-CRD",
+    parentOrderId: "ZG2026-0004",
+    slipNo: "000005",
+    studentId: "112999",
+    className: "電二1",
+    seatNo: "08",
     name: "張志偉",
     gender: "男",
     phone: "0933112233",
@@ -397,35 +446,248 @@ const INITIAL_ORDERS = [
     paymentStatus: "未收款",
     deliveryStatus: "待配送",
     createdAt: "2026-09-22 11:00:00",
-    daysSinceReview: 4 // 第4天防漏接機制觸發！
+    daysSinceReview: 4
   }
 ];
 
-// 4. 資料庫封裝層 (LocalStorage + 預設資料管理)
+// 預設已註冊示範學生名冊 (包含班級座號唯一性初始資料)
+const INITIAL_STUDENTS = [
+  { studentId: "112345", className: "資三1", seatNo: "18", name: "陳冠宇", gender: "男", phone: "0912345678", registeredAt: "2026-09-24 09:00:00" },
+  { studentId: "112412", className: "美三1", seatNo: "05", name: "林詩婷", gender: "女", phone: "0987654321", registeredAt: "2026-09-23 13:45:00" },
+  { studentId: "111889", className: "廣三2", seatNo: "12", name: "張立誠", gender: "男", phone: "0922334455", registeredAt: "2026-09-24 10:00:00" },
+  { studentId: "112999", className: "電二1", seatNo: "08", name: "張志偉", gender: "男", phone: "0933112233", registeredAt: "2026-09-22 10:30:00" }
+];
+
+// 4. 資料庫封裝層 (LocalStorage + 正規化持久化管理)
 class ZgDataManager {
-  static KEY_ORDERS = "zg_orders_db_v1";
-  static KEY_USER = "zg_current_user_v1";
-  static KEY_ADMIN = "zg_current_admin_v1";
-  static KEY_LOGS = "zg_audit_logs_v1";
-  static KEY_SLIP_COUNTER = "zg_slip_counter_v1";
+  static KEY_ORDERS = "zg_orders_db_v2";
+  static KEY_USER = "zg_current_user_v2";
+  static KEY_ADMIN = "zg_current_admin_v2";
+  static KEY_LOGS = "zg_audit_logs_v2";
+  static KEY_SLIP_COUNTER = "zg_slip_counter_v2";
+  static KEY_PRODUCTS = "zg_products_db_v2";
+  static KEY_STUDENTS = "zg_registered_students_v2";
+  static KEY_RBAC_PASSWORDS = "zg_rbac_auth_passwords_v2";
 
   static init() {
+    // 訂單初始化
     if (!localStorage.getItem(this.KEY_ORDERS)) {
       localStorage.setItem(this.KEY_ORDERS, JSON.stringify(INITIAL_ORDERS));
     }
+    // 流水號計數器
     if (!localStorage.getItem(this.KEY_SLIP_COUNTER)) {
-      localStorage.setItem(this.KEY_SLIP_COUNTER, "000005");
+      localStorage.setItem(this.KEY_SLIP_COUNTER, "000006");
+    }
+    // 商品庫存資料庫初始化
+    if (!localStorage.getItem(this.KEY_PRODUCTS)) {
+      localStorage.setItem(this.KEY_PRODUCTS, JSON.stringify(INITIAL_PRODUCTS));
+    }
+    // 學生資料庫初始化
+    if (!localStorage.getItem(this.KEY_STUDENTS)) {
+      localStorage.setItem(this.KEY_STUDENTS, JSON.stringify(INITIAL_STUDENTS));
+    }
+    // RBAC 職位驗證碼資料庫初始化
+    if (!localStorage.getItem(this.KEY_RBAC_PASSWORDS)) {
+      const passMap = {};
+      RBAC_ACCOUNTS.forEach(acc => {
+        passMap[acc.username] = acc.password;
+      });
+      localStorage.setItem(this.KEY_RBAC_PASSWORDS, JSON.stringify(passMap));
     }
   }
 
+  // ==========================================
+  // 商品管理 CRUD & 庫存狀態切換 (前台即時聯動)
+  // ==========================================
   static getProducts() {
-    return INITIAL_PRODUCTS;
+    this.init();
+    try {
+      return JSON.parse(localStorage.getItem(this.KEY_PRODUCTS)) || INITIAL_PRODUCTS;
+    } catch (e) {
+      return INITIAL_PRODUCTS;
+    }
+  }
+
+  static saveProducts(prods) {
+    localStorage.setItem(this.KEY_PRODUCTS, JSON.stringify(prods));
   }
 
   static getProductById(id) {
-    return INITIAL_PRODUCTS.find(p => p.id === id);
+    const prods = this.getProducts();
+    return prods.find(p => p.id === id);
   }
 
+  static addProduct(newProd) {
+    const prods = this.getProducts();
+    prods.push(newProd);
+    this.saveProducts(prods);
+    this.addLog(`【商品管理】新增商品品項 [${newProd.name} (${newProd.code})]，定價 NT$ ${newProd.price}。`);
+    return newProd;
+  }
+
+  static updateProduct(id, updateFields) {
+    const prods = this.getProducts();
+    const idx = prods.findIndex(p => p.id === id);
+    if (idx !== -1) {
+      prods[idx] = { ...prods[idx], ...updateFields };
+      this.saveProducts(prods);
+      this.addLog(`【商品管理】更新商品 [${prods[idx].name}] 資訊/庫存狀態。`);
+      return prods[idx];
+    }
+    return null;
+  }
+
+  static deleteProduct(id) {
+    let prods = this.getProducts();
+    const p = prods.find(x => x.id === id);
+    if (!p) return false;
+    prods = prods.filter(x => x.id !== id);
+    this.saveProducts(prods);
+    this.addLog(`【商品管理】刪除/下架商品 [${p.name} (${p.code})]。`);
+    return true;
+  }
+
+  static setProductStockStatus(id, newStatus) {
+    return this.updateProduct(id, { stockStatus: newStatus });
+  }
+
+  // ==========================================
+  // 學生會員註冊與登入管理 (嚴格班級座號唯一性)
+  // ==========================================
+  static getRegisteredStudents() {
+    this.init();
+    try {
+      return JSON.parse(localStorage.getItem(this.KEY_STUDENTS)) || INITIAL_STUDENTS;
+    } catch (e) {
+      return INITIAL_STUDENTS;
+    }
+  }
+
+  static saveRegisteredStudents(students) {
+    localStorage.setItem(this.KEY_STUDENTS, JSON.stringify(students));
+  }
+
+  /**
+   * 註冊學生帳號 (嚴格執行：同班級每座號唯一性 + 學號主鍵防重複)
+   */
+  static registerStudent(profile) {
+    const students = this.getRegisteredStudents();
+    const studentId = profile.studentId.trim();
+    const className = profile.className.trim();
+    const seatNo = String(parseInt(profile.seatNo, 10)).padStart(2, "0");
+
+    // 1. 檢查學號是否已註冊過
+    const existById = students.find(s => s.studentId === studentId);
+    if (existById) {
+      return {
+        success: false,
+        message: `學號【${studentId}】已經完成過註冊！請直接切換至【登入】。`
+      };
+    }
+
+    // 2. 核心規範：同一個班級只會有一個座號，防撞號
+    const existBySeat = students.find(s => 
+      s.className.toLowerCase() === className.toLowerCase() && 
+      String(parseInt(s.seatNo, 10)).padStart(2, "0") === seatNo
+    );
+    if (existBySeat) {
+      return {
+        success: false,
+        message: `【座號已被註冊】「${className}」已有 ${parseInt(seatNo, 10)} 號學生（${existBySeat.name}）完成註冊！同一個班級每個座號僅限 1 位學生使用，請確認您的班級與座號是否填寫正確。`
+      };
+    }
+
+    // 3. 通過驗證，寫入資料庫
+    const newStudent = {
+      studentId: studentId,
+      className: className,
+      seatNo: seatNo,
+      name: profile.name.trim(),
+      gender: profile.gender || "未指定",
+      phone: profile.phone.trim(),
+      registeredAt: new Date().toLocaleString("zh-TW", { hour12: false })
+    };
+
+    students.push(newStudent);
+    this.saveRegisteredStudents(students);
+    localStorage.setItem(this.KEY_USER, JSON.stringify(newStudent));
+    this.addLog(`【學生註冊】學生 [${newStudent.name} (${newStudent.className} ${parseInt(newStudent.seatNo, 10)}號 - ${newStudent.studentId})] 註冊成功。`);
+
+    return {
+      success: true,
+      student: newStudent
+    };
+  }
+
+  /**
+   * 學生學號快速登入 (首次註冊後，以後一律由此直接登入)
+   */
+  static loginStudent(studentId) {
+    const cleanId = (studentId || "").trim();
+    const students = this.getRegisteredStudents();
+    const student = students.find(s => s.studentId === cleanId);
+
+    if (!student) {
+      return {
+        success: false,
+        message: `查無學號【${cleanId}】的註冊資料！請先切換至【會員註冊】填寫基本資料。`
+      };
+    }
+
+    localStorage.setItem(this.KEY_USER, JSON.stringify(student));
+    this.addLog(`【學生登入】學生 [${student.name} (${student.studentId})] 登入系統。`);
+    return {
+      success: true,
+      student: student
+    };
+  }
+
+  static getCurrentUser() {
+    try {
+      return JSON.parse(localStorage.getItem(this.KEY_USER));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static logoutUser() {
+    localStorage.removeItem(this.KEY_USER);
+  }
+
+  // ==========================================
+  // RBAC 後台職位「驗證碼」持久化安全管理
+  // ==========================================
+  static getAdminAuthCodes() {
+    this.init();
+    try {
+      return JSON.parse(localStorage.getItem(this.KEY_RBAC_PASSWORDS)) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  static saveAdminAuthCodes(codeMap) {
+    localStorage.setItem(this.KEY_RBAC_PASSWORDS, JSON.stringify(codeMap));
+  }
+
+  static verifyAdminAuth(username, verifyCode) {
+    const codes = this.getAdminAuthCodes();
+    const expected = codes[username];
+    if (!expected) return false;
+    return (verifyCode || "").trim() === expected.trim();
+  }
+
+  static updateAdminAuthCode(username, newCode) {
+    const codes = this.getAdminAuthCodes();
+    codes[username] = (newCode || "").trim();
+    this.saveAdminAuthCodes(codes);
+    this.addLog(`【資安異動】管理員已更新職位 [${username}] 的登入驗證碼。`);
+    return true;
+  }
+
+  // ==========================================
+  // 訂單拆單、查詢、狀態更新
+  // ==========================================
   static getOrders() {
     this.init();
     try {
@@ -440,23 +702,19 @@ class ZgDataManager {
   }
 
   static getNextSlipNo() {
-    let cur = parseInt(localStorage.getItem(this.KEY_SLIP_COUNTER) || "5", 10);
+    let cur = parseInt(localStorage.getItem(this.KEY_SLIP_COUNTER) || "6", 10);
     let str = String(cur).padStart(6, "0");
     localStorage.setItem(this.KEY_SLIP_COUNTER, String(cur + 1));
     return str;
   }
 
-  /**
-   * 核心技術：品項獨立拆單邏輯 (Split Order Logic)
-   * 購物車中若有不同商品品項，自動拆分為獨立工單；同品項多件則合併。
-   */
   static splitAndCreateOrders(cartItems, studentProfile) {
     const parentOrderId = "ZG2026-" + Math.floor(1000 + Math.random() * 9000);
     const orders = this.getOrders();
     const createdOrders = [];
     const nowStr = new Date().toISOString().replace("T", " ").substring(0, 19);
 
-    cartItems.forEach((item, index) => {
+    cartItems.forEach((item) => {
       const prod = this.getProductById(item.productId);
       const childSlipNo = this.getNextSlipNo();
       const childOrderId = `${parentOrderId}-${prod.code || "ITEM"}`;
@@ -511,7 +769,21 @@ class ZgDataManager {
     return null;
   }
 
-  // 14 天後物理銷毀個資功能
+  static clearMockOrders() {
+    const mockIds = ["ZG2026-0001-MUG", "ZG2026-0001-BDG", "ZG2026-0002-CST", "ZG2026-0003-PSP", "ZG2026-0004-CRD"];
+    const currentOrders = this.getOrders();
+    const realOrders = currentOrders.filter(o => !mockIds.includes(o.id));
+    this.saveOrders(realOrders);
+    this.addLog(`【資料庫維護】已清空 5 筆預設示範訂單，保留 ${realOrders.length} 筆真實客戶訂單。`);
+    return realOrders;
+  }
+
+  static resetDemoOrders() {
+    this.saveOrders(INITIAL_ORDERS);
+    this.addLog("【資料庫維護】已恢復系統預設示範訂單資料庫。");
+    return INITIAL_ORDERS;
+  }
+
   static wipeDatabase() {
     localStorage.removeItem(this.KEY_ORDERS);
     localStorage.removeItem(this.KEY_USER);
@@ -534,7 +806,6 @@ class ZgDataManager {
     localStorage.setItem(this.KEY_LOGS, JSON.stringify(logs.slice(0, 100)));
   }
 
-  // 學生個資脫敏函數 (供行銷、宣傳、外送組查看時遮蔽敏感欄位)
   static maskStudentData(order) {
     const masked = { ...order };
     if (masked.studentId && masked.studentId.length >= 4) {

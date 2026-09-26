@@ -12,6 +12,21 @@
   <link rel="stylesheet" href="css/print.css">
 
   <style>
+    /* 2026 雲舞白 × 變革藍綠 全球美學樣式核心變數 */
+    :root {
+      --bg-main: #fbf9f5;
+      --bg-surface: #ffffff;
+      --bg-subtle-warm: #f6f3ed;
+      --teal-primary: #12636b;
+      --teal-hover: #0e4f55;
+      --teal-soft-bg: rgba(18, 99, 107, 0.08);
+      --teal-border: rgba(18, 99, 107, 0.25);
+      --text-primary: #1b2e35;
+      --text-secondary: #4a5c64;
+      --text-muted: #7d8f97;
+      --border-subtle: #e5ded3;
+    }
+
     /* 2026 淺色系後台專用高階介面元件 */
     .admin-layout {
       display: flex;
@@ -258,12 +273,17 @@
         </li>
         <li>
           <button id="tab-btn-finance" class="admin-tab-btn" data-tab="finance">
-            <span>💰</span><span>財務對帳與 A4 雙聯單</span>
+            <span>💰</span><span>財務對帳與 A4 三聯單</span>
           </button>
         </li>
         <li>
           <button id="tab-btn-delivery" class="admin-tab-btn" data-tab="delivery">
             <span>🚚</span><span>班級外送與退件通知</span>
+          </button>
+        </li>
+        <li>
+          <button id="tab-btn-auth-codes" class="admin-tab-btn" data-tab="auth_mgr">
+            <span>🔑</span><span>專員學號 (登入驗證碼)</span>
           </button>
         </li>
         <li>
@@ -300,7 +320,15 @@
           </span>
         </div>
 
-        <div style="display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <!-- 示範資料維護開關 -->
+          <button id="btn-clear-mock" class="btn btn-secondary btn-sm" title="移除 5 筆預設示範訂單，僅保留前台下單之真實顧客訂單" onclick="handleClearMockData()">
+            <span>🗑️ 清除示範假資料</span>
+          </button>
+          <button id="btn-reset-mock" class="btn btn-secondary btn-sm" title="還原系統預設 5 筆示範訂單" onclick="handleResetMockData()">
+            <span>🔄 還原示範資料</span>
+          </button>
+
           <!-- 財務與管理員專屬：匯出 Excel -->
           <button id="btn-export-excel" class="btn btn-cyan btn-sm">
             <span>📥 匯出 Excel 總表 (=HYPERLINK)</span>
@@ -354,7 +382,7 @@
                 <thead>
                   <tr>
                     <th>工單編號</th>
-                    <th>雙聯單號</th>
+                    <th>三聯單號</th>
                     <th>學生 / 班級座號</th>
                     <th>客製品項</th>
                     <th>金額</th>
@@ -434,8 +462,8 @@
         <section id="view-finance" class="admin-tab-content">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <div>
-              <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">財務帳務出納與雙聯單核銷專區</h3>
-              <p style="font-size:0.85rem;color:var(--text-secondary);">可單獨或批次套印標準 A4 雙聯確認單 (上聯顧客、下聯存根、撕線點線)，及時核銷腰包現金</p>
+              <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">財務帳務出納與三聯單核銷專區</h3>
+              <p style="font-size:0.85rem;color:var(--text-secondary);">可單獨或批次套印標準 A4 三聯確認單 (上聯顧客取貨、中聯行政留存、下聯財務存查，含撕線點線)，及時核銷腰包現金</p>
             </div>
           </div>
 
@@ -445,13 +473,13 @@
                 <thead>
                   <tr>
                     <th>工單編號</th>
-                    <th>雙聯流水號</th>
+                    <th>三聯流水號</th>
                     <th>學號 (PK)</th>
                     <th>班級座號姓名</th>
                     <th>訂購品項</th>
                     <th>應收金額</th>
                     <th>現金收款切換</th>
-                    <th>A4 雙聯單套印</th>
+                    <th>A4 三聯單套印</th>
                   </tr>
                 </thead>
                 <tbody id="finance-orders-tbody"></tbody>
@@ -502,15 +530,42 @@
           </div>
         </section>
 
+        <!-- View: 專員學號 (登入驗證碼管理矩陣) -->
+        <section id="view-auth_mgr" class="admin-tab-content">
+          <div style="margin-bottom:20px;">
+            <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">各組專員學號 (登入驗證碼) 管理中心</h3>
+            <p style="font-size:0.85rem;color:var(--text-secondary);">
+              大會已將登入驗證碼設定為「各組專員學號」。目前成員名單尚未完全確定，各職位已預載對應帳號，總召或負責人可於此處直接鍵入並儲存專員學號，儲存後即時生效！
+            </p>
+          </div>
+
+          <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);">
+            <div style="overflow-x:auto;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>登入帳號</th>
+                    <th>專員職位</th>
+                    <th>負責組別</th>
+                    <th>專員學號 (登入驗證碼)</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-auth-codes-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
         <!-- View 6: 資安日誌與 14 天到期全量物理銷毀 (Security & Data Wipe) -->
         <section id="view-security" class="admin-tab-content">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
             <div>
               <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">大會資安稽核矩陣與個資銷毀防線</h3>
-              <p style="font-size:0.85rem;color:var(--text-secondary);">符合規格書第一區塊資安規範：全程 HTTPS，活動結案 14 天後徹底銷毀學號、電話在內之個資</p>
+              <p style="font-size:0.85rem;color:var(--text-secondary);">資安防護規範：活動籌備與進行期間全程安全保存；於活動圓滿閉幕日（預定 2026/11/15）後起算保留 14 天供財務對帳與補印三聯單，屆期後始開放執行物理銷毀</p>
             </div>
             <button id="btn-emergency-wipe" class="btn btn-danger">
-              <span>⚠️ 執行 14 天到期個資物理全量抹除</span>
+              <span>⚠️ 閉幕 14 天到期個資物理抹除 (安全防護中)</span>
             </button>
           </div>
 
@@ -581,6 +636,88 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary admin-modal-close">關閉視窗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- A4 三聯確認單即時預覽視窗 (螢幕檢視與單張列印防呆) -->
+  <div id="modal-slip-preview" class="modal-overlay">
+    <div class="modal-card modal-card-lg" style="max-width:860px;max-height:92vh;">
+      <div class="modal-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.3rem;">🖨️</span>
+          <div>
+            <h3 class="modal-title" style="font-size:1.1rem;">A4 三聯確認單即時檢視與列印</h3>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">請核對上聯(顧客取貨/防偽章)、中聯(派送留存)、下聯(財務存查)資料與金額，確認無誤後點擊列印</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeSlipPreviewModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding:16px 20px;background:#f3f4f6;">
+        <div id="slip-preview-render-target" class="slip-screen-preview-wrapper" style="background:#fff;padding:24px;border-radius:8px;border:1px solid #d1d5db;box-shadow:0 4px 12px rgba(0,0,0,0.06);max-height:65vh;overflow-y:auto;">
+          <!-- 動態載入該筆訂單真實三聯單內容 -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="background:#ffffff;">
+        <span id="slip-preview-info-tag" style="font-size:0.85rem;color:var(--text-muted);margin-right:auto;"></span>
+        <button class="btn btn-secondary" onclick="closeSlipPreviewModal()">✕ 關閉視窗</button>
+        <button id="btn-confirm-print-single" class="btn btn-primary" onclick="confirmPrintCurrentPreview()">
+          <span>🖨️ 送往印表機列印此單 (A4 三聯標準格式)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 批次套印 A4 三聯單精靈視窗 -->
+  <div id="modal-batch-slip" class="modal-overlay">
+    <div class="modal-card modal-card-lg" style="max-width:900px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">🖨️ 批次套印 A4 三聯單精靈</h3>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">請勾選欲列印之「審核通過」工單，避免重複列印或誤印舊資料：</p>
+        </div>
+        <button class="modal-close-btn" onclick="closeBatchSlipModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding:18px 24px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="setBatchSelectAll(true)">✓ 全選</button>
+            <button class="btn btn-secondary btn-sm" onclick="setBatchSelectAll(false)">✕ 取消全選</button>
+            <button class="btn btn-secondary btn-sm" onclick="setBatchSelectRealOnly()">★ 僅選真實客戶訂單</button>
+          </div>
+          <span style="font-size:0.85rem;color:var(--teal-primary);font-weight:700;">
+            已選取 <span id="batch-selected-count">0</span> / <span id="batch-total-count">0</span> 張工單
+          </span>
+        </div>
+
+        <div style="max-height:380px;overflow-y:auto;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);">
+          <table class="admin-table" style="font-size:0.85rem;">
+            <thead>
+              <tr>
+                <th style="width:40px;text-align:center;"><input type="checkbox" id="batch-check-all-top" onchange="setBatchSelectAll(this.checked)"></th>
+                <th>工單編號</th>
+                <th>雙聯號</th>
+                <th>學號</th>
+                <th>姓名班級</th>
+                <th>商品名稱</th>
+                <th>金額</th>
+                <th>收款</th>
+                <th>單獨預覽</th>
+              </tr>
+            </thead>
+            <tbody id="batch-slip-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeBatchSlipModal()">✕ 取消</button>
+        <button id="btn-batch-execute-print" class="btn btn-primary" onclick="executeBatchPrintSelected()">
+          <span>🖨️ 開始批次列印勾選單據</span>
+        </button>
       </div>
     </div>
   </div>

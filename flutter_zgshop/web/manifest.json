@@ -1,0 +1,23 @@
+{
+  "name": "智光商工 115學年度 第62屆校慶園遊會 - 客製商品旗艦工坊",
+  "short_name": "ZG創客商城",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff8f8",
+  "theme_color": "#fff8f8",
+  "description": "智光商工115校慶園遊會客製商品專案官方線上預訂商城",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/Icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

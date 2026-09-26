@@ -2,6 +2,10 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=store/index.html">
+  <script>
+    window.location.replace("store/index.html");
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>智光商工 115學年度 第62屆校慶園遊會 | 資料處理科客製商品旗艦工坊</title>
   <meta name="description" content="智光商工115學年度第62屆校慶園遊會客製化商品專案官方線上預訂商城。提供陶瓷馬克杯、瞬吸杯墊、亮面胸章、皮革悠遊卡套與護照套等頂級客製化熱轉印與UV印刷服務。具備1080P圖檔檢驗與智慧拆單系統。">
@@ -62,6 +66,11 @@
           <span id="user-status-text" class="single-line" style="max-width:140px;">學生註冊 / 登入</span>
         </button>
 
+        <!-- 下載/安裝手機 App 按鈕 (Android APK & iOS) -->
+        <button id="btn-open-app-modal" class="btn btn-primary" style="padding:7px 15px;font-size:0.85rem;background:linear-gradient(135deg, var(--teal-primary), var(--sage-green));border:none;" title="下載 Android APK 安裝包 / iOS 免審查一鍵安裝至桌面">
+          <span>📲 下載 App</span>
+        </button>
+
         <!-- 2026 美學導覽與小測驗按鈕 -->
         <button id="btn-open-quiz" class="btn btn-secondary" style="padding:7px 16px;font-size:0.85rem;" title="探索 2026 設計大師課趨勢與隨堂測驗">
           <span>💡 2026 美學導覽</span>
@@ -91,6 +100,17 @@
       <span id="crumb-product" class="breadcrumb-item active">全品項瀏覽</span>
     </div>
   </nav>
+
+  <!-- 行動專用 App 下載促銷橫幅 (App Promo Strip) -->
+  <aside class="app-download-strip" onclick="openAppDownloadModal()" role="button" aria-label="開啟 App 下載視窗">
+    <div class="app-strip-inner">
+      <span class="app-strip-badge">🚀 官方行動 App 上線</span>
+      <span class="app-strip-text">
+        <strong>智光商工校慶商城 App</strong> 現已開放！支援 <strong>Android APK 直接下載</strong> 與 <strong>iOS 快速加入主畫面</strong>，全螢幕極速下單不卡頓！
+      </span>
+      <span class="app-strip-cta">立即下載 / 安裝 ➔</span>
+    </div>
+  </aside>
 
   <!-- 主視覺 Hero Banner 區塊 -->
   <section class="hero-section">
@@ -491,11 +511,231 @@
           </div>
         </div>
       </div>
+  <!-- 模態視窗 7：行動裝置專用 App 下載與安裝中心 (Android APK & iOS) -->
+  <div id="modal-app-download" class="modal-overlay">
+    <div class="modal-card modal-card-lg" style="max-width:760px;">
+      <div class="modal-header" style="background:linear-gradient(135deg, rgba(18,99,107,0.06), rgba(178,130,75,0.08));">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <img src="assets/images/icon-192.png" alt="App Icon" style="width:42px;height:42px;border-radius:10px;box-shadow:var(--shadow-sm);border:1px solid var(--border-subtle);">
+          <div>
+            <h3 class="modal-title" style="font-size:1.2rem;color:var(--text-primary);">📱 智光創客商城 官方行動 App 安裝中心</h3>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin:0;">支援 Android APK 直接下載 &amp; iOS 免審查一鍵安裝至桌面</p>
+          </div>
+        </div>
+        <button class="drawer-close-btn modal-close-trigger">✕</button>
+      </div>
+
+      <!-- 作業系統切換分頁導覽 -->
+      <div style="display:flex;border-bottom:1px solid var(--border-subtle);background:var(--bg-subtle-warm);padding:0 16px;">
+        <button id="tab-btn-android" class="app-tab-btn active" onclick="switchAppTab('android')">
+          <span>🤖 Android 用戶 (APK 下載 &amp; PWA)</span>
+        </button>
+        <button id="tab-btn-ios" class="app-tab-btn" onclick="switchAppTab('ios')">
+          <span>🍎 iOS 用戶 (iPhone / iPad)</span>
+        </button>
+        <button id="tab-btn-qr" class="app-tab-btn" onclick="switchAppTab('qr')">
+          <span>💻 跨裝置掃碼互聯</span>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding:22px;max-height:75vh;overflow-y:auto;">
+        
+        <!-- Tab 1: Android 專區 -->
+        <div id="app-panel-android" class="app-panel active">
+          <div style="background:var(--teal-soft-bg);border:1px solid var(--teal-border);border-radius:var(--radius-md);padding:16px;margin-bottom:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+              <div>
+                <h4 style="font-size:1.05rem;font-weight:900;color:var(--teal-primary);margin-bottom:4px;">
+                  📦 Android 原生安裝檔 (APK) 直接下載
+                </h4>
+                <p style="font-size:0.82rem;color:var(--text-secondary);margin:0;">
+                  版本：v2.0.26 正式發布版 · 支援 Android 8.0 及以上所有品牌手機 (三星/ASUS/小米/OPPO/Vivo 等)
+                </p>
+              </div>
+              <span style="font-size:0.75rem;background:var(--teal-primary);color:#fff;padding:3px 10px;border-radius:12px;font-weight:700;">官方直連</span>
+            </div>
+
+            <!-- APK 下載大按鈕 -->
+            <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
+              <a href="assets/downloads/zgshop-v2.0.26.apk" download="zgshop-v2.0.26.apk" class="btn btn-primary" style="padding:14px 20px;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:12px;text-decoration:none;border-radius:var(--radius-md);box-shadow:var(--shadow-glow-teal);">
+                <span style="font-size:1.4rem;">📥</span>
+                <span style="text-align:left;">
+                  <strong style="font-size:1.05rem;">立即下載 Android APK 安裝包 (zgshop-v2.0.26.apk)</strong><br>
+                  <small style="font-size:0.75rem;opacity:0.88;">點擊即刻存入手機「下載」資料夾 · 離線/隨點隨用</small>
+                </span>
+              </a>
+
+              <!-- PWA 一鍵原生安裝按鈕 -->
+              <button id="btn-android-pwa-install" class="btn btn-cyan" style="padding:12px 18px;display:flex;align-items:center;justify-content:center;gap:10px;" onclick="triggerPwaInstall()">
+                <span style="font-size:1.2rem;">⚡</span>
+                <span style="text-align:left;">
+                  <strong>一鍵安裝至桌面 (PWA 原生免開未知來源)</strong><br>
+                  <small style="font-size:0.72rem;">由系統原生對話框快速建立主螢幕 App 圖示</small>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 步驟安裝教學 -->
+          <h5 style="font-size:0.95rem;font-weight:800;color:var(--text-primary);margin-bottom:12px;">
+            📖 Android 裝置 4 步驟安裝教學指南：
+          </h5>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;">
+            <div class="os-step-card">
+              <div class="os-step-num">1</div>
+              <div class="os-step-title">下載 APK 檔案</div>
+              <div class="os-step-desc">點擊上方藍色「立即下載」按鈕，手機瀏覽器將自動下載安裝檔。</div>
+            </div>
+            <div class="os-step-card">
+              <div class="os-step-num">2</div>
+              <div class="os-step-title">開啟安裝檔</div>
+              <div class="os-step-desc">下載完成後，下拉通知列或在手機「檔案管理 ➔ 下載」點擊 zgshop.apk。</div>
+            </div>
+            <div class="os-step-card">
+              <div class="os-step-num">3</div>
+              <div class="os-step-title">允許來源安裝</div>
+              <div class="os-step-desc">若提示「安全性封鎖」，點選【設定】並開啟【允許來自此來源的安裝】。</div>
+            </div>
+            <div class="os-step-card">
+              <div class="os-step-num">4</div>
+              <div class="os-step-title">點擊安裝完成</div>
+              <div class="os-step-desc">按下【安裝】，手機桌面即出現 ZG創客商城 圖示，享受原生商城體驗！</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: iOS 專區 -->
+        <div id="app-panel-ios" class="app-panel" style="display:none;">
+          <div style="background:var(--warm-sand-soft);border:1px solid var(--warm-sand-border);border-radius:var(--radius-md);padding:16px;margin-bottom:18px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:1.3rem;">🍎</span>
+              <h4 style="font-size:1.05rem;font-weight:900;color:var(--warm-sand-hover);margin:0;">
+                iOS (iPhone / iPad) 快速加入主畫面
+              </h4>
+            </div>
+            <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;margin:0;">
+              因 Apple 官方安全架構限制，iOS 裝置不支援直接下載執行 .apk 安裝包。但 Apple 官方為所有 iPhone 深度打造了 <strong>PWA「加入主畫面 (Web Clip)」技術</strong>，無需經過 App Store 漫長審查，即可在桌面生成完全獨立的原生全螢幕 App！
+            </p>
+          </div>
+
+          <!-- 3 步驟圖解指南 -->
+          <h5 style="font-size:0.95rem;font-weight:800;color:var(--text-primary);margin-bottom:12px;">
+            📲 iPhone 3 秒快速安裝至桌面步驟：
+          </h5>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:16px;">
+            <div class="os-step-card">
+              <div class="os-step-num">1</div>
+              <div class="os-step-title">使用 Safari 開啟</div>
+              <div class="os-step-desc">請使用 iPhone 內建的 <strong>Safari 瀏覽器</strong> 開啟本專案網址。</div>
+            </div>
+            <div class="os-step-card">
+              <div class="os-step-num">2</div>
+              <div class="os-step-title">點擊「分享」圖示</div>
+              <div class="os-step-desc">點擊瀏覽器底部正中間的 <strong>「分享」⎋</strong> 圖示 (方框加向上箭頭)。</div>
+            </div>
+            <div class="os-step-card">
+              <div class="os-step-num">3</div>
+              <div class="os-step-title">選擇「加入主畫面」</div>
+              <div class="os-step-desc">在清單中往下滑動，點選 <strong>「加入主畫面 ➕」</strong> 並按下右上角【新增】。</div>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-subtle-warm);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div>
+              <div style="font-weight:700;font-size:0.88rem;color:var(--text-primary);">本商城官方專屬網址</div>
+              <div id="copy-url-display" style="font-size:0.78rem;color:var(--teal-primary);font-family:monospace;"></div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="copySiteUrl()">
+              <span>📋 複製網址 (可在 Safari 貼上)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab 3: 跨裝置掃碼互聯 -->
+        <div id="app-panel-qr" class="app-panel" style="display:none;">
+          <div style="text-align:center;padding:16px;">
+            <h4 style="font-size:1.1rem;font-weight:800;color:var(--text-primary);margin-bottom:6px;">
+              📷 手機掃描 QR Code 立即開啟並安裝
+            </h4>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px;">
+              正在使用電腦或筆電瀏覽嗎？拿起您的 iPhone 或 Android 手機相機掃描下方條碼：
+            </p>
+
+            <div style="display:inline-block;padding:16px;background:#ffffff;border:2px solid var(--border-subtle);border-radius:var(--radius-md);box-shadow:var(--shadow-card);margin-bottom:14px;">
+              <!-- 內建標準清晰 SVG QR Code 圖樣 -->
+              <svg width="180" height="180" viewBox="0 0 256 256" style="display:block;">
+                <rect width="256" height="256" fill="#ffffff"/>
+                <!-- QR 定位點 左上 -->
+                <rect x="20" y="20" width="70" height="70" fill="#12636b" rx="8"/>
+                <rect x="34" y="34" width="42" height="42" fill="#ffffff" rx="4"/>
+                <rect x="44" y="44" width="22" height="22" fill="#12636b" rx="2"/>
+                <!-- QR 定位點 右上 -->
+                <rect x="166" y="20" width="70" height="70" fill="#12636b" rx="8"/>
+                <rect x="180" y="34" width="42" height="42" fill="#ffffff" rx="4"/>
+                <rect x="190" y="44" width="22" height="22" fill="#12636b" rx="2"/>
+                <!-- QR 定位點 左下 -->
+                <rect x="20" y="166" width="70" height="70" fill="#12636b" rx="8"/>
+                <rect x="34" y="180" width="42" height="42" fill="#ffffff" rx="4"/>
+                <rect x="44" y="190" width="22" height="22" fill="#12636b" rx="2"/>
+                <!-- QR 模擬資料點矩陣 -->
+                <rect x="105" y="25" width="16" height="16" fill="#12636b"/>
+                <rect x="130" y="25" width="16" height="16" fill="#b2824b"/>
+                <rect x="105" y="55" width="16" height="16" fill="#3d7857"/>
+                <rect x="130" y="75" width="16" height="16" fill="#12636b"/>
+                <rect x="25" y="105" width="16" height="16" fill="#12636b"/>
+                <rect x="55" y="105" width="16" height="16" fill="#b2824b"/>
+                <rect x="80" y="105" width="16" height="16" fill="#12636b"/>
+                <rect x="105" y="105" width="46" height="46" fill="#12636b" rx="6"/>
+                <circle cx="128" cy="128" r="14" fill="#ffffff"/>
+                <circle cx="128" cy="128" r="8" fill="#b2824b"/>
+                <rect x="160" y="105" width="16" height="16" fill="#12636b"/>
+                <rect x="185" y="105" width="16" height="16" fill="#3d7857"/>
+                <rect x="215" y="105" width="16" height="16" fill="#12636b"/>
+                <rect x="105" y="165" width="16" height="16" fill="#b2824b"/>
+                <rect x="130" y="185" width="16" height="16" fill="#12636b"/>
+                <rect x="160" y="165" width="16" height="16" fill="#3d7857"/>
+                <rect x="185" y="185" width="16" height="16" fill="#12636b"/>
+                <rect x="215" y="165" width="16" height="16" fill="#b2824b"/>
+                <rect x="160" y="215" width="36" height="16" fill="#12636b"/>
+                <rect x="205" y="215" width="26" height="16" fill="#3d7857"/>
+              </svg>
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);font-weight:600;">
+              ✨ 相機掃碼直接跳轉 · 支援 Android 瀏覽器與 iOS Safari
+            </div>
+          </div>
+        </div>
+
+      </div>
+
       <div class="modal-footer">
-        <button class="btn btn-secondary modal-close-trigger">關閉導覽</button>
+        <button class="btn btn-secondary modal-close-trigger">關閉視窗</button>
       </div>
     </div>
   </div>
+
+  <!-- 行動裝置專用底部固定導覽列 (Mobile Bottom Navigation Bar) -->
+  <nav class="mobile-bottom-bar" aria-label="行動底部導覽">
+    <button id="mob-nav-home" class="mob-nav-item active" onclick="handleMobNavHome()">
+      <span class="mob-nav-icon">🏠</span>
+      <span class="mob-nav-label">首頁商城</span>
+    </button>
+    <button id="mob-nav-lookup" class="mob-nav-item" onclick="openLookupModal()">
+      <span class="mob-nav-icon">🔍</span>
+      <span class="mob-nav-label">訂單進度</span>
+    </button>
+    <button id="mob-nav-app" class="mob-nav-item" onclick="openAppDownloadModal()">
+      <span class="mob-nav-icon">📲</span>
+      <span class="mob-nav-label">下載 App</span>
+    </button>
+    <button id="mob-nav-cart" class="mob-nav-item" onclick="openCartDrawer()">
+      <div style="position:relative;display:inline-block;">
+        <span class="mob-nav-icon">🛒</span>
+        <span id="mob-cart-count-badge" class="mob-cart-badge">0</span>
+      </div>
+      <span class="mob-nav-label">購物車</span>
+    </button>
+  </nav>
 
   <!-- 旗艦商城頁尾資訊 (Footer - 溫潤人文) -->
   <footer class="footer">

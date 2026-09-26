@@ -1,68 +1,73 @@
 /* ==========================================================================
-   智光商工 115學年度 第62屆校慶園遊會 - 客製化商品旗艦商城 (ZG Creative Lab)
-   2026 國際設計大師課美學規範：雲舞白 × 變革藍綠 × 暖沙奶油 × 液態玻璃 (Liquid Glass)
+   智光商工 115學年度 第62屆校慶園遊會 - 客製化商品旗艦商城 (ZG Boutique Lab)
+   美學規範：✨ 可愛好看精品亮晶晶 × 珠光流金粉 × 幻彩晨曦紫 × 晶透玻璃 (Liquid Crystal)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap');
 
 :root {
   /* ==========================================================================
-     2026 全球代表色與淺色系美學調色盤 (Pantone Cloud Dancer & WGSN Transformative Teal)
+     ✨ 可愛好看精品亮晶晶調色盤 (Kawaii Sparkling Boutique Palette)
      ========================================================================== */
   
-  /* 基底：Pantone 2026 年度代表色「雲舞白 (Cloud Dancer / PANTONE 11-4201)」- 帶細微暖意與朝霞光感 */
-  --bg-main: #fbf9f5;
+  /* 珠光基底：晨曦珠光暖白，帶有極細微的玫瑰香檳粉光暈 */
+  --bg-main: #fff8f8;
   --bg-surface: #ffffff;
-  --bg-surface-translucent: rgba(255, 255, 255, 0.88);
-  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-surface-translucent: rgba(255, 255, 255, 0.92);
+  --bg-card: rgba(255, 255, 255, 0.95);
   --bg-card-hover: #ffffff;
-  --bg-elevated: #f4efe6;
-  --bg-subtle-warm: #f8f5ee;
+  --bg-elevated: #fff0f5;
+  --bg-subtle-warm: #fff5f7;
 
-  /* 主題色：WGSN 2026 年度代表色「變革藍綠色 (Transformative Teal)」- 象徵轉型、希望與心靈療癒 */
-  --teal-primary: #12636b;
-  --teal-hover: #0e4f55;
-  --teal-light: #208792;
-  --teal-soft-bg: rgba(18, 99, 107, 0.08);
-  --teal-border: rgba(18, 99, 107, 0.25);
-
-  /* 2026 暖心陪伴色調：暖沙棕 (Warm Sand) & 香檸奶油 (Cream) & 鼠尾草綠 (Sage) & 暖心粉 (Nude Rose) */
-  --warm-sand: #b2824b;
-  --warm-sand-hover: #9b6c36;
-  --warm-sand-soft: rgba(178, 130, 75, 0.1);
-  --warm-sand-border: rgba(178, 130, 75, 0.28);
+  /* 主題色系：晶燦玫瑰粉 (Glitter Rose) × 晨曦幻彩紫 (Aurora) × 香檳流金 (Champagne Sparkle) */
+  --glitter-pink: #ff6584;
+  --glitter-rose: #ff758c;
+  --glitter-gold: #f59e0b;
+  --glitter-champagne: #ffd166;
+  --glitter-aurora: #a855f7;
+  --glitter-sky: #38bdf8;
   
-  --sage-green: #3d7857;
-  --sage-soft: rgba(61, 120, 87, 0.1);
-  --sage-border: rgba(61, 120, 87, 0.25);
+  /* 保留優雅調和色：高級綠與大地金 */
+  --teal-primary: #e11d48; /* 亮麗精品石榴紅粉 */
+  --teal-hover: #be123c;
+  --teal-light: #fb7185;
+  --teal-soft-bg: rgba(255, 101, 132, 0.08);
+  --teal-border: rgba(255, 101, 132, 0.28);
 
-  --nude-rose: #d96b68;
-  --nude-rose-soft: rgba(217, 107, 104, 0.1);
+  --warm-sand: #d97706; /* 香檳琥珀金 */
+  --warm-sand-hover: #b45309;
+  --warm-sand-soft: rgba(245, 158, 11, 0.1);
+  --warm-sand-border: rgba(245, 158, 11, 0.28);
+  
+  --sage-green: #10b981; /* 薄荷寶石綠 */
+  --sage-soft: rgba(16, 185, 129, 0.1);
+  --sage-border: rgba(16, 185, 129, 0.25);
 
-  --alert-crimson: #c93b3b;
-  --alert-soft: rgba(201, 59, 59, 0.08);
+  --nude-rose: #f43f5e;
+  --alert-crimson: #ef4444;
+  --alert-soft: rgba(239, 68, 68, 0.08);
 
-  /* 文字配色：深岩灰暖黑 (非刺眼死黑)，帶來舒適閱讀對比與高級留白感 */
-  --text-primary: #1a222a;
-  --text-secondary: #4b5866;
-  --text-muted: #788594;
-  --text-brand: #12636b;
-  --text-gold: #96672f;
+  /* 文字配色：深柔黑與櫻粉深灰，文字自然斷行不突兀 */
+  --text-primary: #1f1b24;
+  --text-secondary: #4a4453;
+  --text-muted: #827b8d;
+  --text-brand: #e11d48;
+  --text-gold: #b45309;
 
-  /* 液態玻璃 (Liquid Glass) 微光邊界與立體漫射光影 */
-  --border-subtle: rgba(216, 206, 190, 0.6);
-  --border-bright: rgba(18, 99, 107, 0.35);
-  --border-glass: rgba(255, 255, 255, 0.85);
+  /* 晶燦立體光影與高透光玻璃擬態 */
+  --border-subtle: rgba(255, 182, 193, 0.45);
+  --border-bright: rgba(255, 101, 132, 0.4);
+  --border-glass: rgba(255, 255, 255, 0.9);
 
-  --shadow-sm: 0 2px 8px rgba(90, 75, 55, 0.04);
-  --shadow-card: 0 8px 24px rgba(70, 55, 40, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
-  --shadow-card-hover: 0 16px 36px rgba(18, 99, 107, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
-  --shadow-glow-teal: 0 4px 20px rgba(18, 99, 107, 0.25);
-  --shadow-glow-sand: 0 4px 20px rgba(178, 130, 75, 0.25);
+  --shadow-sm: 0 2px 10px rgba(225, 29, 72, 0.05);
+  --shadow-card: 0 8px 24px rgba(255, 101, 132, 0.08), 0 2px 6px rgba(245, 158, 11, 0.04);
+  --shadow-card-hover: 0 16px 36px rgba(225, 29, 72, 0.16), 0 4px 12px rgba(245, 158, 11, 0.1);
+  --shadow-glow-pink: 0 6px 24px rgba(255, 101, 132, 0.35);
+  --shadow-glow-gold: 0 6px 24px rgba(245, 158, 11, 0.35);
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --radius-full: 9999px;
 
   --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
@@ -71,7 +76,7 @@
 }
 
 /* ==========================================================================
-   核心重置與字型排版 (Typography & Baseline)
+   核心重置與字型排版 (自然斷行、不奇怪斷字)
    ========================================================================== */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -92,13 +97,81 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
-  /* 2026 雲舞白暖意自然光漫射漸層 */
+  word-break: normal;
+  overflow-wrap: break-word;
+  /* ✨ 珠光亮晶晶與柔光漫射光暈漸層 */
   background-image: 
-    radial-gradient(circle at 12% 10%, rgba(18, 99, 107, 0.04) 0%, transparent 45%),
-    radial-gradient(circle at 88% 25%, rgba(178, 130, 75, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 50% 90%, rgba(61, 120, 87, 0.04) 0%, transparent 60%),
-    linear-gradient(180deg, #fbf9f5 0%, #f5efe4 100%);
-  background-attachment: fixed;
+    radial-gradient(circle at 10% 8%, rgba(255, 117, 140, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 90% 20%, rgba(245, 158, 11, 0.07) 0%, transparent 50%),
+    radial-gradient(circle at 50% 85%, rgba(168, 85, 247, 0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #fff9f9 0%, #fff0f3 100%);
+}
+
+/* ✨ 閃爍發光動效 (Sparkle Animation) */
+@keyframes glitterPulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.6));
+  }
+  50% {
+    transform: scale(1.15) rotate(12deg);
+    filter: drop-shadow(0 0 8px rgba(255, 105, 180, 0.8));
+  }
+}
+
+.glitter-sparkle {
+  display: inline-block;
+  animation: glitterPulse 2.5s infinite ease-in-out;
+}
+
+/* 庫存狀態標籤 */
+.stock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.stock-pill.in_stock {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.stock-pill.restocking {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.stock-pill.out_of_stock {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Apple iOS 模式微調 */
+body.theme-apple {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Noto Sans TC', sans-serif;
+  letter-spacing: -0.01em;
+}
+body.theme-apple .btn,
+body.theme-apple .card,
+body.theme-apple .modal-card {
+  border-radius: 20px;
+}
+
+/* Android 模式微調 */
+body.theme-android {
+  font-family: 'Roboto', 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+}
+body.theme-android .btn,
+body.theme-android .card,
+body.theme-android .modal-card {
+  border-radius: 14px;
 }
 
 /* ==========================================================================
@@ -998,18 +1071,40 @@ body {
    圖片上傳與 1080P 即時檢驗組件 (Dropzone & Validator)
    ========================================================================== */
 .upload-dropzone {
+  position: relative;
   border: 2px dashed var(--teal-border);
   border-radius: var(--radius-md);
-  padding: 24px;
+  padding: 16px;
   text-align: center;
   cursor: pointer;
   background: var(--teal-soft-bg);
   transition: all var(--transition-fast);
+  max-width: 100%;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .upload-dropzone:hover, .upload-dropzone.drag-over {
   border-color: var(--teal-primary);
   background: rgba(18, 99, 107, 0.12);
+}
+
+.upload-preview-img {
+  max-width: 100%;
+  max-height: 220px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1.5px solid var(--teal-primary);
+  margin: 0 auto;
+  display: block;
 }
 
 .preview-container {
@@ -1327,17 +1422,138 @@ body {
 }
 
 /* ==========================================================================
+   行動裝置專用 App 下載與安裝導引中心樣式
+   ========================================================================== */
+.app-download-strip {
+  background: linear-gradient(90deg, rgba(18, 99, 107, 0.08) 0%, rgba(178, 130, 75, 0.08) 100%);
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  padding: 10px 24px;
+  transition: background var(--transition-fast);
+}
+
+.app-download-strip:hover {
+  background: linear-gradient(90deg, rgba(18, 99, 107, 0.14) 0%, rgba(178, 130, 75, 0.14) 100%);
+}
+
+.app-strip-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.85rem;
+}
+
+.app-strip-badge {
+  background: var(--teal-primary);
+  color: #ffffff;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.app-strip-text {
+  color: var(--text-primary);
+  flex-grow: 1;
+}
+
+.app-strip-cta {
+  color: var(--teal-primary);
+  font-weight: 800;
+  white-space: nowrap;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* App 下載 Modal 分頁標籤 */
+.app-tab-btn {
+  padding: 12px 18px;
+  border: none;
+  background: transparent;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.app-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.app-tab-btn.active {
+  color: var(--teal-primary);
+  border-bottom-color: var(--teal-primary);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* 步驟指南卡片 */
+.os-step-card {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.os-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--teal-primary);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.os-step-title {
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.os-step-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* 行動底部固定導覽列 (預設桌面端隱藏) */
+.mobile-bottom-bar {
+  display: none;
+}
+
+/* ==========================================================================
    RWD 響應式優化
    ========================================================================== */
 @media (max-width: 768px) {
+  body {
+    padding-bottom: 64px; /* 為底部導覽列預留空間 */
+  }
+
   .nav-container {
-    padding: 0;
+    padding: 0 12px;
   }
   .brand-sub-title {
     display: none;
   }
   .hero-section {
-    padding: 44px 16px 32px;
+    padding: 36px 16px 28px;
+  }
+  .hero-title {
+    font-size: 1.75rem;
   }
   .product-grid {
     grid-template-columns: 1fr;
@@ -1345,4 +1561,123 @@ body {
   .cart-drawer {
     max-width: 100%;
   }
+
+  /* 行動端底部導覽列啟動 */
+  .mobile-bottom-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 58px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border-subtle);
+    z-index: 850;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 20px rgba(70, 55, 40, 0.08);
+  }
+
+  .mob-nav-item {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color var(--transition-fast);
+  }
+
+  .mob-nav-item.active,
+  .mob-nav-item:active {
+    color: var(--teal-primary);
+  }
+
+  .mob-nav-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .mob-nav-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-top: 3px;
+  }
+
+  .mob-cart-badge {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+    background: var(--alert-crimson);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 1px 5px;
+    border-radius: 999px;
+    min-width: 16px;
+    text-align: center;
+  }
+
+  .app-strip-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  /* 後台管理介面行動端支援 */
+  .admin-layout {
+    flex-direction: column;
+  }
+  .admin-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .admin-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }
+
+/* ==========================================================================
+   後台通用排版架構防護 (防止頁面標籤全展開與跑版)
+   ========================================================================== */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-main, #fbf9f5);
+}
+
+.admin-sidebar {
+  width: 260px;
+  background: #ffffff;
+  border-right: 1px solid var(--border-subtle, #e5ded3);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-shadow: 2px 0 16px rgba(70, 55, 40, 0.03);
+}
+
+.admin-content-area {
+  flex-grow: 1;
+  overflow-y: auto;
+  background: var(--bg-main, #fbf9f5);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-tab-content {
+  display: none !important;
+}
+
+.admin-tab-content.active {
+  display: block !important;
+}
+

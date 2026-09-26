@@ -1,0 +1,25 @@
+name: zgshop_flutter
+description: "智光商工 115學年度 第62屆校慶園遊會 - 客製商品旗艦工坊 (ZG Boutique Mobile App)"
+publish_to: 'none'
+version: 2.0.26+2026
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
+  shared_preferences: ^2.2.2
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
