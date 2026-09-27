@@ -13,6 +13,21 @@
   <link rel="stylesheet" href="css/print.css">
 
   <style>
+    /* 2026 美學後台樣式防禦變數 */
+    :root {
+      --bg-main: #fbf9f5;
+      --bg-surface: #ffffff;
+      --bg-subtle-warm: #f6f3ed;
+      --teal-primary: #12636b;
+      --teal-hover: #0e4f55;
+      --teal-soft-bg: rgba(18, 99, 107, 0.08);
+      --teal-border: rgba(18, 99, 107, 0.25);
+      --text-primary: #1b2e35;
+      --text-secondary: #4a5c64;
+      --text-muted: #7d8f97;
+      --border-subtle: #e5ded3;
+    }
+
     /* 2026 淺色系後台專用高階介面元件 */
     .admin-layout {
       display: flex;
@@ -181,49 +196,96 @@
       <div class="modal-header" style="text-align:center;display:block;background:var(--bg-subtle-warm);">
         <img src="assets/images/logo.png" style="width:64px;height:64px;border-radius:50%;border:2px solid var(--teal-primary);margin:0 auto 10px;box-shadow:0 4px 14px rgba(18,99,107,0.2);">
         <h2 style="font-size:1.3rem;font-weight:900;color:var(--text-primary);">後台管理與產線審核系統</h2>
-        <div style="font-size:0.82rem;color:var(--teal-primary);margin-top:2px;font-weight:700;">智光商工 第62屆校慶園遊會客製專案 (隱密閘道)</div>
+        <div style="font-size:0.82rem;color:var(--teal-primary);margin-top:2px;font-weight:700;">智光商工職業學校 115 年度第六十六屆校慶圓遊會客製專案 (隱密閘道)</div>
       </div>
 
-      <form id="form-admin-login">
-        <div class="modal-body" style="gap:16px;">
-          <div style="background:var(--teal-soft-bg);border:1px solid var(--teal-border);border-radius:var(--radius-md);padding:10px 14px;font-size:0.82rem;color:var(--teal-primary);line-height:1.5;">
-            🔒 <strong>15 人獨立帳號與 RBAC 權限控管：</strong> 總召、AI 網站組、美術組、商品製作組、財務組、企劃宣傳與外送組均配置專屬權限密碼。
+      <!-- 登入模式切換分頁 (雙軌登入：專員學號驗證碼 VS 管理者帳號密碼) -->
+      <div class="boutique-tab-nav" style="display:flex;background:var(--bg-subtle-warm);border-bottom:2px solid var(--border-subtle);padding:0 16px;">
+        <button id="admin-tab-btn-code" type="button" class="admin-tab-btn active" onclick="switchAdminLoginMode('code')" style="flex:1;text-align:center;padding:12px 8px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:3px solid var(--teal-primary);color:var(--teal-primary);">
+          ⚡ 專員快捷驗證碼登入
+        </button>
+        <button id="admin-tab-btn-password" type="button" class="admin-tab-btn" onclick="switchAdminLoginMode('password')" style="flex:1;text-align:center;padding:12px 8px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;color:var(--text-secondary);">
+          🔑 管理者帳號密碼登入
+        </button>
+      </div>
+
+      <!-- 面板 1：專員快捷驗證碼登入 (15職位下拉選單 + 專員學號驗證碼) -->
+      <div id="admin-panel-code-login">
+        <form id="form-admin-login-code" onsubmit="handleAdminLoginWithCode(event)">
+          <div class="modal-body" style="gap:16px;">
+            <div style="background:var(--teal-soft-bg);border:1px solid var(--teal-border);border-radius:var(--radius-md);padding:10px 14px;font-size:0.82rem;color:var(--teal-primary);line-height:1.5;">
+              ⚡ <strong>專員專屬驗證碼登入：</strong> 請於下方選取您的職位，並輸入您的專員學號（即為登入驗證碼）即可直接驗證登入。
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="login-role-select" style="color:var(--teal-primary);font-weight:700;">
+                選取工作人員身分職位 <span style="color:red;">*</span>
+              </label>
+              <select id="login-role-select" class="form-select" style="border-color:var(--teal-primary);" required>
+                <option value="">-- 請選擇工作人員職位 --</option>
+                <option value="admin_director">總召 (主辦人) - 全權限 / 銷毀權</option>
+                <option value="admin_web_core">AI 資訊網站組 (核心) - 全權限 / 系統開發</option>
+                <option value="admin_web_staff">AI 資訊網站組 (招募) - 系統開發 / 報表</option>
+                <option value="admin_art_core">美術視覺組 (核心) - 1080P 圖檔審核</option>
+                <option value="admin_art_staff">美術視覺組 (招募) - 1080P 圖檔審核</option>
+                <option value="admin_maker_core">商品製作組 (核心) - 產線製造 / 直開原圖</option>
+                <option value="admin_maker_staff">商品製作組 (招募) - 產線製造進度變更</option>
+                <option value="admin_finance_core">財務出納組 (核心) - 營收對帳 / A4三聯單</option>
+                <option value="admin_finance_staff">財務出納組 (招募) - 現金對帳 / A4三聯單</option>
+                <option value="admin_logistics_core">現場外送組 (核心) - 班級配送簽收</option>
+                <option value="admin_logistics_staff">現場外送組 (招募) - 班級外送狀態更新</option>
+                <option value="admin_marketing_core">公關行銷組 (核心) - 營收總覽 (純檢視)</option>
+                <option value="admin_pr_core">企劃宣傳組 (核心) - 活動企劃 (純檢視)</option>
+                <option value="admin_equipment_core">活動設備組 (核心) - 機台設備 (純檢視)</option>
+                <option value="admin_supervisor">指導老師/大會督導 - 籌備委員會 (全權限)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="login-auth-code">專員學號 (登入驗證碼) <span style="color:red;">*</span></label>
+              <input type="text" id="login-auth-code" class="form-input" placeholder="請輸入專員學號 (例如：112001)" required>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">
+                💡 驗證碼預設為各專員學號，後台【專員學號管理】可隨時維護更新。
+              </div>
+            </div>
           </div>
 
-          <!-- 快速角色體驗切換器 (Demo 便利選單) -->
-          <div class="form-group">
-            <label class="form-label" style="color:var(--teal-primary);">⚡ 快速體驗身分選擇 (展示用快捷下拉)：</label>
-            <select id="quick-role-select" class="form-select" style="border-color:var(--teal-primary);">
-              <option value="">-- 請選擇登入角色或手動輸入 --</option>
-              <option value="admin_director">總召 (Super Admin) - 全權限 / 銷毀權</option>
-              <option value="admin_web_core">AI 網站組 (Developer) - 系統開發 / 報表</option>
-              <option value="admin_art_core">美術視覺組 (QC Reviewer) - 1080P 圖檔審核</option>
-              <option value="admin_maker_core">商品製作組 (Production) - 產線直開原圖</option>
-              <option value="admin_finance_core">財務組 (Finance) - 營收 / Excel / 雙聯單</option>
-              <option value="staff_plan_A">企劃組 (Marketing) - 統計 / 個資脫敏</option>
-              <option value="staff_promo_A">宣傳組 (Promotion) - 進度 / 個資脫敏</option>
-              <option value="staff_delivery_A">外送組 (Logistics) - 班級配送 / 退件單</option>
-            </select>
+          <div class="modal-footer" style="justify-content:space-between;background:var(--bg-subtle-warm);">
+            <a href="index.html" class="btn btn-secondary btn-sm" style="text-decoration:none;">⬅ 返回前台商城</a>
+            <button type="submit" id="btn-admin-code-submit" class="btn btn-primary">
+              <span>⚡ 驗證碼登入後台</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 面板 2：管理者帳號密碼登入 (手動輸入帳號與預設密碼) -->
+      <div id="admin-panel-password-login" style="display:none;">
+        <form id="form-admin-login">
+          <div class="modal-body" style="gap:16px;">
+            <div style="background:var(--teal-soft-bg);border:1px solid var(--teal-border);border-radius:var(--radius-md);padding:10px 14px;font-size:0.82rem;color:var(--teal-primary);line-height:1.5;">
+              🔑 <strong>帳號密碼登入：</strong> 使用各職位預設管理者帳號與初始密碼登入系統。
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="admin-login-username">專屬管理帳號 (Username) <span style="color:red;">*</span></label>
+              <input type="text" id="admin-login-username" class="form-input" placeholder="例：admin_director" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="admin-login-password">初始預設密碼 (Password) <span style="color:red;">*</span></label>
+              <input type="password" id="admin-login-password" class="form-input" placeholder="例：ZgShop@2026_01" required>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="admin-login-username">專屬管理帳號 (Username)</label>
-            <input type="text" id="admin-login-username" class="form-input" placeholder="例：admin_director" required>
+          <div class="modal-footer" style="justify-content:space-between;background:var(--bg-subtle-warm);">
+            <a href="index.html" class="btn btn-secondary btn-sm" style="text-decoration:none;">⬅ 返回前台商城</a>
+            <button type="submit" id="btn-admin-login-submit" class="btn btn-primary">
+              <span>🔑 密碼登入系統</span>
+            </button>
           </div>
-
-          <div class="form-group">
-            <label class="form-label" for="admin-login-password">初始預設密碼 (Password)</label>
-            <input type="password" id="admin-login-password" class="form-input" placeholder="例：ZgShop@2026_01" required>
-          </div>
-        </div>
-
-        <div class="modal-footer" style="justify-content:space-between;background:var(--bg-subtle-warm);">
-          <a href="index.html" class="btn btn-secondary" style="font-size:0.85rem;">返回商城首頁</a>
-          <button type="submit" class="btn btn-primary">
-            <span>驗證登入後台</span>
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -259,7 +321,7 @@
         </li>
         <li>
           <button id="tab-btn-finance" class="admin-tab-btn" data-tab="finance">
-            <span>💰</span><span>財務對帳與 A4 雙聯單</span>
+            <span>💰</span><span>財務對帳與 A4 三聯單</span>
           </button>
         </li>
         <li>
@@ -300,9 +362,9 @@
       <!-- 頂部資訊列 -->
       <header class="admin-topbar">
         <div style="display:flex;align-items:center;gap:12px;">
-          <h2 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">智光商工 115學年度 第62屆校慶園遊會</h2>
+          <h2 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">智光商工職業學校 115 年度第六十六屆校慶圓遊會</h2>
           <span style="font-size:0.78rem;color:var(--teal-primary);background:var(--teal-soft-bg);padding:4px 10px;border-radius:4px;border:1px solid var(--teal-border);font-weight:600;">
-            個資銷毀承諾倒數：<strong id="destruction-countdown-timer">計算中...</strong>
+            安全保存狀態：<strong id="destruction-countdown-timer">🛡️ 活動籌備進行中 (校慶日期尚未定案 · 資料全程安全保存)</strong>
           </span>
         </div>
 
@@ -316,12 +378,12 @@
           </button>
 
           <!-- 財務與管理員專屬：匯出 Excel -->
-          <button id="btn-export-excel" class="btn btn-cyan btn-sm">
+          <button id="btn-export-excel" class="btn btn-cyan btn-sm" onclick="exportOrdersToExcel()">
             <span>📥 匯出 Excel 總表 (=HYPERLINK)</span>
           </button>
-          <!-- 財務與管理員專屬：批次印雙聯單 -->
-          <button id="btn-batch-print-a4" class="btn btn-primary btn-sm">
-            <span>🖨️ 批次套印 A4 雙聯確認單</span>
+          <!-- 財務與管理員專屬：批次印三聯單 -->
+          <button id="btn-batch-print-a4" class="btn btn-primary btn-sm" onclick="batchPrintApprovedA4()">
+            <span>🖨️ 批次套印 A4 三聯確認單</span>
           </button>
         </div>
       </header>
@@ -368,13 +430,15 @@
                 <thead>
                   <tr>
                     <th>工單編號</th>
-                    <th>雙聯單號</th>
-                    <th>學生 / 班級座號</th>
-                    <th>客製品項</th>
-                    <th>金額</th>
+                    <th>母單編號</th>
+                    <th>三聯流水號</th>
+                    <th>學生 / 班級座號姓名</th>
+                    <th>訂購品項</th>
+                    <th>應付總額</th>
                     <th>美術審核</th>
                     <th>產線狀態</th>
                     <th>收款狀態</th>
+                    <th>外送配送</th>
                   </tr>
                 </thead>
                 <tbody id="dashboard-orders-tbody"></tbody>
@@ -392,8 +456,8 @@
             </div>
             <div>
               <select id="qc-status-filter" class="form-select" onchange="renderQCView()">
-                <option value="all">全部審核狀態</option>
-                <option value="待審核" selected>待審核 (優先處理)</option>
+                <option value="all" selected>全部審核狀態 (包含所有工單)</option>
+                <option value="待審核">待審核 (優先處理)</option>
                 <option value="審核通過">審核通過</option>
                 <option value="退件">退件</option>
               </select>
@@ -409,8 +473,8 @@
                     <th>印製原圖</th>
                     <th>品項 / 上傳解析度</th>
                     <th>顧客特殊備註</th>
-                    <th>目前狀態</th>
                     <th>審核反饋備註</th>
+                    <th>目前狀態</th>
                     <th>審核操作</th>
                   </tr>
                 </thead>
@@ -465,6 +529,7 @@
                     <th>訂購品項</th>
                     <th>應收金額</th>
                     <th>現金收款切換</th>
+                    <th>是否列印三聯單</th>
                     <th>A4 三聯單套印</th>
                   </tr>
                 </thead>
@@ -548,7 +613,7 @@
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
             <div>
               <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">大會資安稽核矩陣與個資銷毀防線</h3>
-              <p style="font-size:0.85rem;color:var(--text-secondary);">資安防護規範：活動籌備與進行期間全程安全保存；於活動圓滿閉幕日（預定 2026/11/15）後起算保留 14 天供財務對帳與補印三聯單，屆期後始開放執行物理銷毀</p>
+              <p style="font-size:0.85rem;color:var(--text-secondary);">資安防護規範：活動籌備與進行期間全程安全保存；於活動圓滿閉幕日（校慶日期尚未定案）後起算保留 14 天供財務對帳與補印三聯單，結案閉幕前所有下單資料皆受永久完整保護，絕不提前銷毀</p>
             </div>
             <button id="btn-emergency-wipe" class="btn btn-danger">
               <span>⚠️ 閉幕 14 天到期個資物理抹除 (安全防護中)</span>
@@ -609,7 +674,7 @@
               <textarea id="qc-inspect-note-input" class="form-textarea" rows="3" placeholder="例：圖檔尺寸合格，符合 300DPI 轉印標準。或：原圖僅 640x480，文字邊緣鋸齒嚴重，請更換 1080P 圖檔。"></textarea>
             </div>
 
-            <div style="display:flex;gap:10px;margin-top:auto;">
+            <div id="qc-inspect-action-buttons" style="display:flex;gap:10px;margin-top:auto;">
               <button class="btn btn-danger" style="flex:1;" onclick="submitQCDecision('退件')">
                 <span>✕ 退件 (通知學生重傳)</span>
               </button>
@@ -685,12 +750,13 @@
               <tr>
                 <th style="width:40px;text-align:center;"><input type="checkbox" id="batch-check-all-top" onchange="setBatchSelectAll(this.checked)"></th>
                 <th>工單編號</th>
-                <th>雙聯號</th>
+                <th>三聯流水號</th>
                 <th>學號</th>
                 <th>姓名班級</th>
                 <th>商品名稱</th>
                 <th>金額</th>
                 <th>收款</th>
+                <th>列印狀態</th>
                 <th>單獨預覽</th>
               </tr>
             </thead>

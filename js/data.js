@@ -1,7 +1,14 @@
 /**
- * 智光商工 115學年度 第62屆校慶園遊會 - 客製化商品專案 (ZG Shop)
+ * 智光商工職業學校 115 年度第六十六屆校慶圓遊會 - 客製化商品專案 (ZG Shop)
  * 核心資料庫模型、商品庫存管理 (CRUD)、RBAC 驗證碼安全矩陣與學生帳號唯一性約束
  */
+
+// 台灣當地時間產生輔助函式 (避免 toISOString 產生 UTC 8小時落差)
+function getTaiwanNowString() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
 
 // 1. 商品資料定義 (5 大客製化商品，預設庫存狀態：in_stock 現貨供應)
 const INITIAL_PRODUCTS = [
@@ -289,26 +296,26 @@ const RBAC_ACCOUNTS = [
     username: "admin_supervisor",
     password: "ZgShop@2026_15",
     roleName: "指導老師/大會督導",
-    roleLevel: "Auditor",
+    roleLevel: "Advisor",
     dept: "校慶籌備指導委員會",
-    permissions: ["dashboard", "export"],
+    permissions: ["all", "dashboard", "products", "qc", "production", "finance", "delivery", "export", "wipe", "auth_mgr"],
     canExportExcel: true,
     canPrintA4: true,
     canViewFullPII: true,
-    canApproveQC: false,
-    canUpdateProd: false,
-    canManageProducts: false
+    canApproveQC: true,
+    canUpdateProd: true,
+    canManageProducts: true
   }
 ];
 
-// 3. 預設模擬訂單 (符合資料庫正規化設計)
+// 3. 預設模擬訂單 (符合資料庫正規化設計，採用標準科系加班級與台灣當地時間)
 const INITIAL_ORDERS = [
   {
     id: "ZG2026-0001-MUG",
     parentOrderId: "ZG2026-0001",
     slipNo: "000001",
     studentId: "112345",
-    className: "資三1",
+    className: "資處科三1",
     seatNo: "18",
     name: "陳冠宇",
     gender: "男",
@@ -329,6 +336,8 @@ const INITIAL_ORDERS = [
     prodStatus: "已完成",
     paymentStatus: "已收款",
     deliveryStatus: "已送達班級",
+    isPrintedSlip: true,
+    printedSlipAt: "2026-09-24 11:00:00",
     createdAt: "2026-09-24 09:15:00",
     daysSinceReview: 2
   },
@@ -337,7 +346,7 @@ const INITIAL_ORDERS = [
     parentOrderId: "ZG2026-0001",
     slipNo: "000002",
     studentId: "112345",
-    className: "資三1",
+    className: "資處科三1",
     seatNo: "18",
     name: "陳冠宇",
     gender: "男",
@@ -358,6 +367,8 @@ const INITIAL_ORDERS = [
     prodStatus: "轉印中",
     paymentStatus: "已收款",
     deliveryStatus: "待配送",
+    isPrintedSlip: true,
+    printedSlipAt: "2026-09-24 11:00:00",
     createdAt: "2026-09-24 09:15:00",
     daysSinceReview: 2
   },
@@ -366,8 +377,8 @@ const INITIAL_ORDERS = [
     parentOrderId: "ZG2026-0002",
     slipNo: "000003",
     studentId: "112412",
-    className: "美三1",
-    seatNo: "05",
+    className: "廣設科三1",
+    seatNo: "5",
     name: "林詩婷",
     gender: "女",
     phone: "0987654321",
@@ -387,6 +398,8 @@ const INITIAL_ORDERS = [
     prodStatus: "待印製",
     paymentStatus: "未收款",
     deliveryStatus: "待配送",
+    isPrintedSlip: false,
+    printedSlipAt: "",
     createdAt: "2026-09-23 14:00:00",
     daysSinceReview: 3
   },
@@ -395,7 +408,7 @@ const INITIAL_ORDERS = [
     parentOrderId: "ZG2026-0003",
     slipNo: "000004",
     studentId: "111889",
-    className: "廣三2",
+    className: "廣設科三2",
     seatNo: "12",
     name: "張立誠",
     gender: "男",
@@ -416,6 +429,8 @@ const INITIAL_ORDERS = [
     prodStatus: "待印製",
     paymentStatus: "未收款",
     deliveryStatus: "待配送",
+    isPrintedSlip: false,
+    printedSlipAt: "",
     createdAt: "2026-09-24 10:10:00",
     daysSinceReview: 2
   },
@@ -424,8 +439,8 @@ const INITIAL_ORDERS = [
     parentOrderId: "ZG2026-0004",
     slipNo: "000005",
     studentId: "112999",
-    className: "電二1",
-    seatNo: "08",
+    className: "電子科二1",
+    seatNo: "8",
     name: "張志偉",
     gender: "男",
     phone: "0933112233",
@@ -445,6 +460,8 @@ const INITIAL_ORDERS = [
     prodStatus: "待印製",
     paymentStatus: "未收款",
     deliveryStatus: "待配送",
+    isPrintedSlip: false,
+    printedSlipAt: "",
     createdAt: "2026-09-22 11:00:00",
     daysSinceReview: 4
   }
@@ -452,10 +469,10 @@ const INITIAL_ORDERS = [
 
 // 預設已註冊示範學生名冊 (包含班級座號唯一性初始資料)
 const INITIAL_STUDENTS = [
-  { studentId: "112345", className: "資三1", seatNo: "18", name: "陳冠宇", gender: "男", phone: "0912345678", registeredAt: "2026-09-24 09:00:00" },
-  { studentId: "112412", className: "美三1", seatNo: "05", name: "林詩婷", gender: "女", phone: "0987654321", registeredAt: "2026-09-23 13:45:00" },
-  { studentId: "111889", className: "廣三2", seatNo: "12", name: "張立誠", gender: "男", phone: "0922334455", registeredAt: "2026-09-24 10:00:00" },
-  { studentId: "112999", className: "電二1", seatNo: "08", name: "張志偉", gender: "男", phone: "0933112233", registeredAt: "2026-09-22 10:30:00" }
+  { studentId: "112345", className: "資處科三1", seatNo: "18", name: "陳冠宇", gender: "男", phone: "0912345678", registeredAt: "2026-09-24 09:00:00" },
+  { studentId: "112412", className: "廣設科三1", seatNo: "5", name: "林詩婷", gender: "女", phone: "0987654321", registeredAt: "2026-09-23 13:45:00" },
+  { studentId: "111889", className: "廣設科三2", seatNo: "12", name: "張立誠", gender: "男", phone: "0922334455", registeredAt: "2026-09-24 10:00:00" },
+  { studentId: "112999", className: "電子科二1", seatNo: "8", name: "張志偉", gender: "男", phone: "0933112233", registeredAt: "2026-09-22 10:30:00" }
 ];
 
 // 4. 資料庫封裝層 (LocalStorage + 正規化持久化管理)
@@ -493,6 +510,79 @@ class ZgDataManager {
         passMap[acc.username] = acc.password;
       });
       localStorage.setItem(this.KEY_RBAC_PASSWORDS, JSON.stringify(passMap));
+    }
+
+    // 啟動伺服器同步機制
+    this.syncWithServer();
+
+    if (typeof window !== "undefined" && !window._zg_server_sync_initialized) {
+      window._zg_server_sync_initialized = true;
+      // 每 3.5 秒自動輪詢與聚焦時同步
+      setInterval(() => ZgDataManager.syncWithServer(), 3500);
+      window.addEventListener("focus", () => ZgDataManager.syncWithServer());
+    }
+  }
+
+  // ==========================================
+  // 跨裝置中央伺服器同步引擎 (Cross-Device Sync Engine)
+  // ==========================================
+  static async syncWithServer() {
+    try {
+      const res = await fetch("/api/db", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.success && data.db) {
+        const db = data.db;
+        let changed = false;
+
+        if (Array.isArray(db.students)) {
+          const oldStr = localStorage.getItem(this.KEY_STUDENTS);
+          const newStr = JSON.stringify(db.students);
+          if (oldStr !== newStr) {
+            localStorage.setItem(this.KEY_STUDENTS, newStr);
+            changed = true;
+          }
+        }
+        if (Array.isArray(db.orders)) {
+          const oldStr = localStorage.getItem(this.KEY_ORDERS);
+          const newStr = JSON.stringify(db.orders);
+          if (oldStr !== newStr) {
+            localStorage.setItem(this.KEY_ORDERS, newStr);
+            changed = true;
+          }
+        }
+        if (Array.isArray(db.products)) {
+          localStorage.setItem(this.KEY_PRODUCTS, JSON.stringify(db.products));
+        }
+        if (db.slipCounter) {
+          localStorage.setItem(this.KEY_SLIP_COUNTER, String(db.slipCounter));
+        }
+        if (Array.isArray(db.logs)) {
+          localStorage.setItem(this.KEY_LOGS, JSON.stringify(db.logs));
+        }
+        if (db.adminAuth) {
+          localStorage.setItem(this.KEY_RBAC_PASSWORDS, JSON.stringify(db.adminAuth));
+        }
+
+        if (changed) {
+          if (typeof window.refreshAdminViews === "function") window.refreshAdminViews();
+          if (typeof window.refreshStoreViews === "function") window.refreshStoreViews();
+        }
+      }
+    } catch (err) {
+      // 離線狀態靜默保持 LocalStorage
+    }
+  }
+
+  static async postToServer(endpoint, payload) {
+    try {
+      await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.warn("Server sync fallback:", err);
     }
   }
 
@@ -620,6 +710,69 @@ class ZgDataManager {
   }
 
   /**
+   * 結帳雙重確認或個資更新時專用：確保同班級座號唯一，並無縫綁定/更新資料庫
+   */
+  static upsertStudent(profile) {
+    const students = this.getRegisteredStudents();
+    const studentId = (profile.studentId || "").trim();
+    const className = (profile.className || "").trim();
+    const seatNo = String(parseInt(profile.seatNo, 10)).padStart(2, "0");
+    const name = (profile.name || "").trim();
+    const phone = (profile.phone || "").trim();
+    const gender = profile.gender || "男";
+
+    if (!studentId || !className || !seatNo || !name || !phone) {
+      return { success: false, message: "學生個資 6 項核心欄位（學號、姓名、班級、座號、性別、電話）皆為必填！" };
+    }
+
+    // 嚴格規範：同一個班級只能有一個特定座號，不可被其他學號盜用
+    const conflict = students.find(s =>
+      s.studentId !== studentId &&
+      s.className.toLowerCase() === className.toLowerCase() &&
+      String(parseInt(s.seatNo, 10)).padStart(2, "0") === seatNo
+    );
+
+    if (conflict) {
+      return {
+        success: false,
+        message: `【座號已被佔用】「${className}」已有 ${parseInt(seatNo, 10)} 號學生（${conflict.name}，學號 ${conflict.studentId}）完成註冊！同一個班級每個座號僅限 1 位學生使用，請確認您的班級與座號。`
+      };
+    }
+
+    const idx = students.findIndex(s => s.studentId === studentId);
+    let finalStudent;
+    if (idx !== -1) {
+      students[idx] = {
+        ...students[idx],
+        className,
+        seatNo,
+        name,
+        gender,
+        phone,
+        updatedAt: new Date().toLocaleString("zh-TW", { hour12: false })
+      };
+      finalStudent = students[idx];
+    } else {
+      finalStudent = {
+        studentId,
+        className,
+        seatNo,
+        name,
+        gender,
+        phone,
+        registeredAt: new Date().toLocaleString("zh-TW", { hour12: false })
+      };
+      students.push(finalStudent);
+    }
+
+    this.saveRegisteredStudents(students);
+    localStorage.setItem(this.KEY_USER, JSON.stringify(finalStudent));
+    this.addLog(`【個資綁定】學生 [${finalStudent.name} (${finalStudent.className} ${parseInt(finalStudent.seatNo, 10)}號 - ${finalStudent.studentId})] 完成個資驗證與更新。`);
+    this.postToServer("/api/students/upsert", finalStudent);
+    return { success: true, student: finalStudent };
+  }
+
+  /**
    * 學生學號快速登入 (首次註冊後，以後一律由此直接登入)
    */
   static loginStudent(studentId) {
@@ -652,6 +805,26 @@ class ZgDataManager {
 
   static logoutUser() {
     localStorage.removeItem(this.KEY_USER);
+  }
+
+  static saveCurrentUser(student) {
+    localStorage.setItem(this.KEY_USER, JSON.stringify(student));
+  }
+
+  static clearCurrentUser() {
+    this.logoutUser();
+  }
+
+  static getStudents() {
+    return this.getRegisteredStudents();
+  }
+
+  static saveStudents(list) {
+    this.saveRegisteredStudents(list);
+  }
+
+  static syncStudentToServer(student) {
+    this.postToServer("/api/students/upsert", student);
   }
 
   // ==========================================
@@ -712,12 +885,12 @@ class ZgDataManager {
     const parentOrderId = "ZG2026-" + Math.floor(1000 + Math.random() * 9000);
     const orders = this.getOrders();
     const createdOrders = [];
-    const nowStr = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const nowStr = getTaiwanNowString();
 
     cartItems.forEach((item) => {
       const prod = this.getProductById(item.productId);
       const childSlipNo = this.getNextSlipNo();
-      const childOrderId = `${parentOrderId}-${prod.code || "ITEM"}`;
+      const childOrderId = `${parentOrderId}-${prod ? prod.code : "ITEM"}`;
 
       const newOrder = {
         id: childOrderId,
@@ -725,18 +898,18 @@ class ZgDataManager {
         slipNo: childSlipNo,
         studentId: studentProfile.studentId.trim(),
         className: studentProfile.className.trim(),
-        seatNo: String(studentProfile.seatNo).padStart(2, "0"),
+        seatNo: String(parseInt(studentProfile.seatNo, 10)),
         name: studentProfile.name.trim(),
         gender: studentProfile.gender || "未指定",
         phone: studentProfile.phone.trim(),
         productId: item.productId,
-        productCode: prod.code,
-        productName: prod.name,
+        productCode: prod ? prod.code : "ITEM",
+        productName: prod ? prod.name : item.name,
         quantity: item.quantity,
-        unitPrice: prod.price,
-        totalPrice: prod.price * item.quantity,
+        unitPrice: prod ? prod.price : item.price,
+        totalPrice: (prod ? prod.price : item.price) * item.quantity,
         notes: item.notes || "無特別備註",
-        imageUrl: item.imageUrl || prod.image,
+        imageUrl: item.imageUrl || (prod ? prod.image : "assets/images/mug.jpg"),
         imageRes: item.imageRes || "1920 x 1080 (1080P)",
         qcStatus: "待審核",
         qcReviewer: "",
@@ -745,6 +918,8 @@ class ZgDataManager {
         prodStatus: "待印製",
         paymentStatus: "未收款",
         deliveryStatus: "待配送",
+        isPrintedSlip: false,
+        printedSlipAt: "",
         createdAt: nowStr,
         daysSinceReview: 0
       };
@@ -755,6 +930,14 @@ class ZgDataManager {
 
     this.saveOrders(orders);
     this.addLog(`學生 [${studentProfile.name} (${studentProfile.studentId})] 建立訂單，拆單產生 ${createdOrders.length} 張工單。`);
+    
+    // 即時推送到伺服器
+    this.postToServer("/api/sync", {
+      orders: orders,
+      slipCounter: parseInt(localStorage.getItem(this.KEY_SLIP_COUNTER) || "6", 10),
+      logs: this.getLogs()
+    });
+
     return { parentOrderId, createdOrders };
   }
 
@@ -764,6 +947,13 @@ class ZgDataManager {
     if (idx !== -1) {
       orders[idx] = { ...orders[idx], ...updateFields };
       this.saveOrders(orders);
+      
+      // 即時同步至伺服器
+      this.postToServer("/api/orders/update", {
+        orderId: orderId,
+        updates: updateFields
+      });
+
       return orders[idx];
     }
     return null;

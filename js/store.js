@@ -55,10 +55,11 @@ function setButtonLoading(btn, isLoading, originalText = "") {
   }
 }
 
-// 3. 會員註冊與登入機制 (嚴格班級座號唯一性驗證)
+// 3. 會員註冊、登入與個人資料修改 (嚴格班級座號唯一性驗證)
 function initStudentAuth() {
   currentStudent = ZgDataManager.getCurrentUser();
   updateStudentUI();
+  updateDynamicIsland();
 }
 
 function updateStudentUI() {
@@ -71,25 +72,108 @@ function updateStudentUI() {
     if (statusEl) statusEl.textContent = "💖 學生登入 / 註冊";
     if (dotEl) dotEl.classList.remove("logged-in");
   }
+  updateDynamicIsland();
 }
 
 function openStudentAuthModal() {
   const modal = document.getElementById("modal-student-auth");
-  // 若未登入，預設開啟登入分頁
-  switchAuthTab(currentStudent ? "register" : "login");
+  const tabProfileBtn = document.getElementById("auth-tab-btn-profile");
+  if (currentStudent && currentStudent.studentId) {
+    if (tabProfileBtn) tabProfileBtn.style.display = "inline-block";
+    switchAuthTab("profile");
+    populateStudentProfile();
+  } else {
+    if (tabProfileBtn) tabProfileBtn.style.display = "none";
+    switchAuthTab("login");
+  }
   openModal(modal);
 }
 
 function switchAuthTab(tab) {
   const btnLogin = document.getElementById("auth-tab-btn-login");
   const btnReg = document.getElementById("auth-tab-btn-register");
+  const btnProfile = document.getElementById("auth-tab-btn-profile");
   const panelLogin = document.getElementById("auth-panel-login");
   const panelReg = document.getElementById("auth-panel-register");
+  const panelProfile = document.getElementById("auth-panel-profile");
 
   if (btnLogin) btnLogin.classList.toggle("active", tab === "login");
   if (btnReg) btnReg.classList.toggle("active", tab === "register");
+  if (btnProfile) btnProfile.classList.toggle("active", tab === "profile");
+
   if (panelLogin) panelLogin.style.display = tab === "login" ? "block" : "none";
   if (panelReg) panelReg.style.display = tab === "register" ? "block" : "none";
+  if (panelProfile) {
+    panelProfile.style.display = tab === "profile" ? "block" : "none";
+    if (tab === "profile") populateStudentProfile();
+  }
+}
+
+function populateStudentProfile() {
+  if (!currentStudent) return;
+  const idEl = document.getElementById("profile-student-id");
+  const nameEl = document.getElementById("profile-student-name");
+  const classEl = document.getElementById("profile-student-class");
+  const seatEl = document.getElementById("profile-student-seat");
+  const genderEl = document.getElementById("profile-student-gender");
+  const phoneEl = document.getElementById("profile-student-phone");
+
+  if (idEl) idEl.value = currentStudent.studentId || "";
+  if (nameEl) nameEl.value = currentStudent.name || "";
+  if (classEl) classEl.value = currentStudent.className || "";
+  if (seatEl) seatEl.value = currentStudent.seatNo || "";
+  if (genderEl) genderEl.value = currentStudent.gender || "不方便透露";
+  if (phoneEl) phoneEl.value = currentStudent.phone || "";
+}
+
+function handleSaveStudentProfile(event) {
+  if (event) event.preventDefault();
+  if (!currentStudent) {
+    return showToast("尚未登入學生會員！", "error");
+  }
+
+  const genderEl = document.getElementById("profile-student-gender");
+  const phoneEl = document.getElementById("profile-student-phone");
+  const gender = genderEl ? genderEl.value : "不方便透露";
+  const phone = phoneEl ? phoneEl.value.trim() : "";
+
+  if (!phone || !/^09\d{8}$/.test(phone)) {
+    return showToast("請填寫正確的手機號碼（格式：09xxxxxxxx，共 10 碼數字）！", "error");
+  }
+
+  // 學號、姓名、班級、座號為唯一綁定，不可修改；僅性別、電話可修改 (User Requirement)
+  currentStudent.gender = gender;
+  currentStudent.phone = phone;
+
+  // 更新學生名冊
+  const students = ZgDataManager.getStudents();
+  const idx = students.findIndex(s => s.studentId === currentStudent.studentId);
+  if (idx !== -1) {
+    students[idx].gender = gender;
+    students[idx].phone = phone;
+    ZgDataManager.saveStudents(students);
+  }
+
+  // 儲存當前登入者並同步至後端 server db.json
+  ZgDataManager.saveCurrentUser(currentStudent);
+  ZgDataManager.syncStudentToServer(currentStudent);
+
+  updateStudentUI();
+  updateDynamicIsland();
+  showToast("個人資料修改已成功儲存！", "success");
+  closeModal(document.getElementById("modal-student-auth"));
+}
+
+function handleStudentLogout() {
+  ZgDataManager.clearCurrentUser();
+  currentStudent = null;
+  updateStudentUI();
+  updateDynamicIsland();
+  const tabProfileBtn = document.getElementById("auth-tab-btn-profile");
+  if (tabProfileBtn) tabProfileBtn.style.display = "none";
+  switchAuthTab("login");
+  closeModal(document.getElementById("modal-student-auth"));
+  showToast("您已安全登出學生會員帳號。", "info");
 }
 
 function handleStudentLogin(event) {
@@ -126,10 +210,11 @@ function handleStudentRegister(event) {
     return showToast("請輸入完整的學號（至少4碼）", "error");
   }
   if (!className) {
-    return showToast("請填寫班級（如：資三1）", "error");
+    return showToast("請填寫科系加班級（如：資處科三1、廣設科二1）", "error");
   }
-  if (!seatNo || isNaN(seatNo) || parseInt(seatNo) < 1 || parseInt(seatNo) > 65) {
-    return showToast("請填寫有效座號（1 ~ 65 號）", "error");
+  const parsedSeat = parseInt(seatNo, 10);
+  if (!seatNo || isNaN(parsedSeat) || parsedSeat < 1 || parsedSeat > 65) {
+    return showToast("請填寫有效座號數字（例如：1、2、3...）", "error");
   }
   if (!name || name.length < 2) {
     return showToast("請填写真實姓名", "error");
@@ -139,7 +224,12 @@ function handleStudentRegister(event) {
   }
 
   const result = ZgDataManager.registerStudent({
-    studentId, name, className, seatNo, gender, phone
+    studentId,
+    name,
+    className,
+    seatNo: String(parsedSeat),
+    gender: gender || "不方便透露",
+    phone
   });
 
   if (result.success) {
@@ -187,23 +277,94 @@ function confirmNoticeAndOpenStudio() {
 
 let currentCategoryFilter = "all";
 
-function filterCatalog(category, btn) {
+let selectedDetailProductId = null;
+
+function handleCategoryDropdownChange(category) {
   currentCategoryFilter = category;
-  document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
-  if (btn) {
-    btn.classList.add("active");
-  } else {
-    const matchingBtn = document.querySelector(`.filter-pill[data-cat="${category}"]`);
-    if (matchingBtn) matchingBtn.classList.add("active");
-  }
   renderProducts();
 }
 
-// 5. 商品渲染 (含分類過濾與庫存狀態：現貨/補貨中/已搶光)
+function openProductDetailModal(productId) {
+  const prod = ZgDataManager.getProductById(productId);
+  if (!prod) return;
+
+  selectedDetailProductId = productId;
+
+  const nameEl = document.getElementById("detail-prod-name");
+  const imgEl = document.getElementById("detail-prod-image");
+  const badgeEl = document.getElementById("detail-prod-badge");
+  const stockEl = document.getElementById("detail-prod-stock-badge");
+  const catEl = document.getElementById("detail-prod-category");
+  const codeEl = document.getElementById("detail-prod-code");
+  const priceEl = document.getElementById("detail-prod-price");
+  const specsEl = document.getElementById("detail-prod-specs");
+  const matEl = document.getElementById("detail-prod-material");
+  const resEl = document.getElementById("detail-prod-resreq");
+  const descEl = document.getElementById("detail-prod-desc");
+  const btnProceed = document.getElementById("btn-detail-proceed");
+
+  if (nameEl) nameEl.textContent = prod.name;
+  if (imgEl) { imgEl.src = prod.image; imgEl.alt = prod.name; }
+  if (badgeEl) badgeEl.textContent = prod.badge || "人氣限定";
+  if (catEl) catEl.textContent = prod.category;
+  if (codeEl) codeEl.textContent = prod.code || "ITEM";
+  if (priceEl) priceEl.textContent = `NT$ ${prod.price}`;
+  if (specsEl) specsEl.textContent = prod.specs || "標準校慶工藝規格";
+  if (matEl) matEl.textContent = prod.material || "特級熱昇華工藝材質";
+  if (resEl) resEl.textContent = prod.resolutionReq || "建議 1080P 以上 (300 DPI)";
+  if (descEl) descEl.textContent = prod.description || "智光商工 115 年度第六十六屆校慶限定客製紀念商品，由資料處理科師生精心監製，採用高溫熱轉印與直噴工藝。";
+
+  const status = prod.stockStatus || "in_stock";
+  if (stockEl) {
+    if (status === "in_stock") {
+      stockEl.innerHTML = `<span class="stock-pill in_stock">🟢 現貨熱銷中</span>`;
+      if (btnProceed) {
+        btnProceed.disabled = false;
+        btnProceed.style.opacity = "1";
+        btnProceed.style.cursor = "pointer";
+        btnProceed.innerHTML = `<span>✨ 立即客製選購 ➔</span>`;
+      }
+    } else if (status === "restocking") {
+      stockEl.innerHTML = `<span class="stock-pill restocking">🟡 機台排程補貨中</span>`;
+      if (btnProceed) {
+        btnProceed.disabled = false;
+        btnProceed.style.opacity = "1";
+        btnProceed.style.cursor = "pointer";
+        btnProceed.innerHTML = `<span>✨ 預約客製排單 ➔</span>`;
+      }
+    } else {
+      stockEl.innerHTML = `<span class="stock-pill out_of_stock">🔴 暫時缺貨 (已搶光)</span>`;
+      if (btnProceed) {
+        btnProceed.disabled = true;
+        btnProceed.style.opacity = "0.6";
+        btnProceed.style.cursor = "not-allowed";
+        btnProceed.innerHTML = `<span>✕ 已售罄 (暫停接單)</span>`;
+      }
+    }
+  }
+
+  openModal(document.getElementById("modal-product-detail"));
+}
+
+function handleDetailProceedToOrder() {
+  closeModal(document.getElementById("modal-product-detail"));
+  if (selectedDetailProductId) {
+    promptPreOrderNotice(selectedDetailProductId);
+  }
+}
+
+// 5. 商品渲染 (含分類過濾、卡片點擊彈出簡介與庫存狀態：現貨/補貨中/已搶光)
 function renderProducts() {
   const grid = document.getElementById("product-grid-container") || document.getElementById("products-grid");
   if (!grid) return;
   let products = ZgDataManager.getProducts();
+
+  let wishlistIds = [];
+  try {
+    wishlistIds = JSON.parse(localStorage.getItem("zg_wishlist_ids") || "[]");
+  } catch (e) {
+    wishlistIds = [];
+  }
 
   // 分類過濾邏輯
   if (currentCategoryFilter && currentCategoryFilter !== "all") {
@@ -218,12 +379,18 @@ function renderProducts() {
     }
   }
 
+  // 同步下拉式選單之選取值
+  const catSelect = document.getElementById("catalog-category-select");
+  if (catSelect && catSelect.value !== currentCategoryFilter) {
+    catSelect.value = currentCategoryFilter;
+  }
+
   if (products.length === 0) {
     grid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: #ffffff; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
         <p style="font-size: 2.2rem; margin-bottom: 8px;">🎨</p>
         <p style="font-weight: 700; color: var(--text-primary);">該分類目前無上架商品</p>
-        <button class="btn btn-secondary btn-sm" onclick="filterCatalog('all')" style="margin-top: 12px;">查看全部商品</button>
+        <button class="btn btn-secondary btn-sm" onclick="handleCategoryDropdownChange('all')" style="margin-top: 12px;">查看全部商品</button>
       </div>
     `;
     return;
@@ -231,23 +398,27 @@ function renderProducts() {
 
   grid.innerHTML = products.map(prod => {
     const stockStatus = prod.stockStatus || "in_stock";
+    const isWishlisted = wishlistIds.includes(prod.id);
     let stockBadgeHtml = "";
     let btnHtml = "";
 
     if (stockStatus === "in_stock") {
       stockBadgeHtml = `<span class="stock-pill in_stock">🟢 現貨熱銷中</span>`;
-      btnHtml = `<button class="btn btn-primary" onclick="promptPreOrderNotice('${prod.id}')" style="background:linear-gradient(135deg, #ff6584, #f59e0b);border:none;"><span>✨ 立即客製選購</span></button>`;
+      btnHtml = `<button class="btn btn-primary" onclick="event.stopPropagation(); promptPreOrderNotice('${prod.id}')" style="background:linear-gradient(135deg, #ff6584, #f59e0b);border:none;"><span>✨ 立即客製選購</span></button>`;
     } else if (stockStatus === "restocking") {
       stockBadgeHtml = `<span class="stock-pill restocking">🟡 機台排程補貨中</span>`;
-      btnHtml = `<button class="btn btn-secondary" onclick="promptPreOrderNotice('${prod.id}')"><span>✨ 預約客製排單</span></button>`;
+      btnHtml = `<button class="btn btn-secondary" onclick="event.stopPropagation(); promptPreOrderNotice('${prod.id}')"><span>✨ 預約客製排單</span></button>`;
     } else {
       stockBadgeHtml = `<span class="stock-pill out_of_stock">🔴 暫時缺貨 (已搶光)</span>`;
       btnHtml = `<button class="btn btn-secondary" disabled style="opacity:0.6;cursor:not-allowed;"><span>✕ 已售罄 (暫停接單)</span></button>`;
     }
 
     return `
-      <div class="product-card" data-id="${prod.id}">
+      <div class="product-card" data-id="${prod.id}" onclick="openProductDetailModal('${prod.id}')" style="cursor:pointer;" title="點擊檢視【${prod.name}】商品簡介與直徑尺寸規格">
         <span class="product-card-badge" style="background:linear-gradient(135deg, #ff758c, #f59e0b);">${prod.badge || "人氣限定"}</span>
+        <button class="wishlist-heart-btn ${isWishlisted ? 'is-active' : ''}" onclick="toggleWishlistItem(event, '${prod.id}')" title="${isWishlisted ? '已加入願望清單' : '加入願望清單'}">
+          <svg viewBox="0 0 24 24"><path class="heart-svg-path" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
         <div class="product-image-box">
           <img src="${prod.image}" alt="${prod.name}" class="product-image" loading="lazy">
         </div>
@@ -273,6 +444,99 @@ function renderProducts() {
       </div>
     `;
   }).join("");
+}
+
+// ❤️ 收藏 / 願望清單心型彈跳微互動 (Heart Bounce & Spring Physics)
+function toggleWishlistItem(event, productId) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  let wishlistIds = [];
+  try {
+    wishlistIds = JSON.parse(localStorage.getItem("zg_wishlist_ids") || "[]");
+  } catch (e) {
+    wishlistIds = [];
+  }
+
+  const prod = ZgDataManager.getProductById(productId);
+  const prodName = prod ? prod.name : "商品";
+  const index = wishlistIds.indexOf(productId);
+  const btn = event ? event.currentTarget : null;
+
+  if (index === -1) {
+    wishlistIds.push(productId);
+    localStorage.setItem("zg_wishlist_ids", JSON.stringify(wishlistIds));
+    if (btn) {
+      btn.classList.add("is-active");
+      btn.title = "已加入願望清單";
+    }
+    showToast(`❤️ 已將【${prodName}】加入願望清單！`, "success", 2500);
+    if (navigator.vibrate) {
+      try { navigator.vibrate([15, 30, 20]); } catch (e) {}
+    }
+  } else {
+    wishlistIds.splice(index, 1);
+    localStorage.setItem("zg_wishlist_ids", JSON.stringify(wishlistIds));
+    if (btn) {
+      btn.classList.remove("is-active");
+      btn.title = "加入願望清單";
+    }
+    showToast(`已從願望清單移除【${prodName}】`, "info", 2000);
+  }
+}
+
+// 🚀 像 Instagram 一樣靈動的加入購物車拋物線飛入動畫 (Fly-to-Cart Animation)
+function playFlyToCartAnimation(imgSrc) {
+  try {
+    let target = document.getElementById("btn-open-cart");
+    if (!target || target.offsetParent === null) {
+      target = document.getElementById("mob-nav-cart") || document.getElementById("island-cart-badge");
+    }
+    if (!target) return;
+
+    const targetRect = target.getBoundingClientRect();
+    const startX = Math.max(20, Math.min(window.innerWidth - 90, window.innerWidth / 2 - 35));
+    const startY = Math.max(60, Math.min(window.innerHeight - 90, window.innerHeight / 2 - 35));
+
+    const flyingImg = document.createElement("img");
+    flyingImg.src = imgSrc;
+    flyingImg.className = "fly-to-cart-flying-clone";
+    flyingImg.style.width = "72px";
+    flyingImg.style.height = "72px";
+    flyingImg.style.left = `${startX}px`;
+    flyingImg.style.top = `${startY}px`;
+    document.body.appendChild(flyingImg);
+
+    requestAnimationFrame(() => {
+      const destX = targetRect.left + (targetRect.width / 2) - 15;
+      const destY = targetRect.top + (targetRect.height / 2) - 15;
+      const diffX = destX - startX;
+      const diffY = destY - startY;
+
+      flyingImg.style.transform = `translate(${diffX}px, ${diffY}px) scale(0.2)`;
+      flyingImg.style.opacity = "0.2";
+    });
+
+    setTimeout(() => {
+      flyingImg.remove();
+      target.classList.add("cart-bump-active");
+      const islandBadge = document.getElementById("island-cart-badge");
+      if (islandBadge) islandBadge.classList.add("cart-bump-active");
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate(25); } catch (e) {}
+      }
+
+      setTimeout(() => {
+        target.classList.remove("cart-bump-active");
+        if (islandBadge) islandBadge.classList.remove("cart-bump-active");
+      }, 500);
+    }, 620);
+  } catch (err) {
+    console.warn("Fly-to-cart animation skipped:", err);
+  }
 }
 
 // 5. 客製化工作室與圖檔 1080P 上傳檢驗模組
@@ -443,15 +707,21 @@ function addToCartFromStudio() {
     return;
   }
 
-  // 若顧客尚未自行上傳，自動備援使用官方示範高畫質圖檔，流程絕不卡住！
-  if (!currentUploadData) {
-    currentUploadData = {
-      dataUrl: prod.image,
-      width: 1920,
-      height: 1080,
-      is1080p: true,
-      resText: "1920 × 1080 (官方高畫質標準圖檔)"
-    };
+  // 嚴格檢測：若未上傳客製圖檔，嚴禁加入購物車！(User Requirement)
+  if (!currentUploadData || !currentUploadData.dataUrl) {
+    if (btn) setButtonLoading(btn, false);
+    showToast("尚未上傳客製圖檔！請先點選左側區域上傳您的圖檔（JPG / PNG），未上傳圖檔無法加入購物車！", "error", 5000);
+    const dropzone = document.getElementById("studio-dropzone");
+    if (dropzone) {
+      dropzone.scrollIntoView({ behavior: "smooth", block: "center" });
+      dropzone.style.animation = "shake 0.5s ease-in-out";
+      dropzone.style.borderColor = "#e11d48";
+      setTimeout(() => {
+        dropzone.style.animation = "";
+        dropzone.style.borderColor = "";
+      }, 2000);
+    }
+    return;
   }
 
   const qty = parseInt(document.getElementById("studio-qty")?.value, 10) || 1;
@@ -482,22 +752,36 @@ function addToCartFromStudio() {
   updateCartUI();
   if (btn) setButtonLoading(btn, false);
 
+  // 🚀 像 Instagram 一樣靈動的加入購物車拋物線粒子動畫 (Fly-to-Cart Animation)
+  playFlyToCartAnimation(currentUploadData.dataUrl || prod.image);
+
   showToast(`✨ 已成功將【${prod.name}】× ${qty} 加入購物車！`, "success");
   
-  // 即時滑出購物車側邊抽屜，給予最明確的操作反饋！
-  openCartDrawer();
+  // 延遲 420ms 後滑出購物車側邊抽屜，讓使用者先看見極致流暢的拋物線軌跡！
+  setTimeout(() => {
+    openCartDrawer();
+  }, 420);
 }
 
 // 6. 購物車懸浮側邊欄 (Cart Drawer)
+function updateCartUI() {
+  renderCartItems();
+  updateCartBadge();
+}
+
 function openCartDrawer() {
   renderCartItems();
-  document.getElementById("cart-drawer").classList.add("active");
-  document.getElementById("drawer-backdrop").classList.add("active");
+  const drawer = document.getElementById("cart-drawer");
+  const backdrop = document.getElementById("drawer-backdrop");
+  if (drawer) drawer.classList.add("active");
+  if (backdrop) backdrop.classList.add("active");
 }
 
 function closeCartDrawer() {
-  document.getElementById("cart-drawer").classList.remove("active");
-  document.getElementById("drawer-backdrop").classList.remove("active");
+  const drawer = document.getElementById("cart-drawer");
+  const backdrop = document.getElementById("drawer-backdrop");
+  if (drawer) drawer.classList.remove("active");
+  if (backdrop) backdrop.classList.remove("active");
 }
 
 function renderCartItems() {
@@ -585,20 +869,68 @@ function updateCartBadge() {
   if (badge) badge.textContent = count;
   const mobBadge = document.getElementById("mob-cart-count-badge");
   if (mobBadge) mobBadge.textContent = count;
+  updateDynamicIsland();
 }
+
+// 🍎 iOS 擬真動態島 (Dynamic Island) 核心互動
+function toggleDynamicIsland(event) {
+  if (event) event.stopPropagation();
+  const island = document.getElementById("ios-dynamic-island");
+  const expanded = document.getElementById("island-expanded-box");
+  if (!island || !expanded) return;
+
+  const isExp = island.classList.contains("is-expanded");
+  if (isExp) {
+    island.classList.remove("is-expanded");
+    expanded.style.display = "none";
+  } else {
+    island.classList.add("is-expanded");
+    expanded.style.display = "flex";
+  }
+}
+
+function updateDynamicIsland() {
+  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const badge = document.getElementById("island-cart-badge");
+  if (badge) {
+    badge.textContent = `🛒 ${count}`;
+    badge.style.transform = "scale(1.2)";
+    setTimeout(() => { badge.style.transform = "scale(1)"; }, 250);
+  }
+
+  const totalBadge = document.getElementById("island-total-badge");
+  if (totalBadge) totalBadge.textContent = `NT$ ${total}`;
+
+  const userStatus = document.getElementById("island-user-status");
+  if (userStatus) {
+    if (currentStudent && currentStudent.studentId) {
+      userStatus.textContent = `👤 ${currentStudent.className} (${currentStudent.seatNo}號) ${currentStudent.name}`;
+      userStatus.style.color = "#38bdf8";
+    } else {
+      userStatus.textContent = "💖 尚未登入學生會員";
+      userStatus.style.color = "rgba(255,255,255,0.7)";
+    }
+  }
+}
+
+// 點擊空白處自動收合動態島
+document.addEventListener("click", (e) => {
+  const island = document.getElementById("ios-dynamic-island");
+  const expanded = document.getElementById("island-expanded-box");
+  if (island && expanded && island.classList.contains("is-expanded")) {
+    if (!island.contains(e.target)) {
+      island.classList.remove("is-expanded");
+      expanded.style.display = "none";
+    }
+  }
+});
 
 // 7. 結帳雙重確認機制 (Double Confirmation) 與核心自動拆單
 function startCheckoutProcess() {
   if (cart.length === 0) {
-    return showToast("購物車為空，無法進行結帳！", "error");
-  }
-
-  // 結帳前必須完成註冊
-  if (!currentStudent || !currentStudent.studentId) {
-    closeCartDrawer();
-    showToast("結帳前請先填寫 6 項核心學生個資！", "warning");
-    openStudentAuthModal();
-    return;
+    return showToast("購物車為空，請先挑選商品加入購物車！", "warning");
   }
 
   closeCartDrawer();
@@ -610,11 +942,30 @@ function startCheckoutProcess() {
 }
 
 function populateDoubleConfirmModal() {
-  // 支援 store/index.html (modal-checkout-confirm) 與 index.html (modal-double-confirm)
-  const itemsContainer = document.getElementById("confirm-items-list") || document.getElementById("confirm-items-summary");
-  const finalTotalEl = document.getElementById("confirm-total-amount") || document.getElementById("confirm-final-total");
+  // 檢查是否有當前已登入學生資訊
+  currentStudent = ZgDataManager.getCurrentUser();
 
-  // 學生資訊欄位
+  const inputId = document.getElementById("confirm-input-student-id");
+  const inputName = document.getElementById("confirm-input-student-name");
+  const inputClass = document.getElementById("confirm-input-student-class");
+  const inputSeat = document.getElementById("confirm-input-student-seat");
+  const inputGender = document.getElementById("confirm-input-student-gender");
+  const inputPhone = document.getElementById("confirm-input-student-phone");
+  const authBadge = document.getElementById("checkout-auth-badge");
+
+  if (currentStudent && currentStudent.studentId) {
+    if (inputId) inputId.value = currentStudent.studentId;
+    if (inputName) inputName.value = currentStudent.name || "";
+    if (inputClass) inputClass.value = currentStudent.className || "";
+    if (inputSeat) inputSeat.value = parseInt(currentStudent.seatNo, 10) || "";
+    if (inputGender) inputGender.value = currentStudent.gender || "男";
+    if (inputPhone) inputPhone.value = currentStudent.phone || "";
+    if (authBadge) authBadge.textContent = `✓ 已登入會員：${currentStudent.className} ${parseInt(currentStudent.seatNo, 10)}號 ${currentStudent.name}`;
+  } else {
+    if (authBadge) authBadge.textContent = "✎ 請確認或填寫以下取件個資";
+  }
+
+  // 舊版唯讀欄位相容性防呆
   const idEl = document.getElementById("confirm-student-id");
   const nameEl = document.getElementById("confirm-student-name");
   const genderEl = document.getElementById("confirm-student-gender");
@@ -622,24 +973,16 @@ function populateDoubleConfirmModal() {
   const seatEl = document.getElementById("confirm-student-seat");
   const phoneEl = document.getElementById("confirm-student-phone");
 
-  if (idEl) idEl.textContent = currentStudent.studentId || "";
-  if (nameEl) nameEl.textContent = currentStudent.name || "";
-  if (genderEl) genderEl.textContent = currentStudent.gender || "";
-  if (classEl) classEl.textContent = currentStudent.className || "";
-  if (seatEl) seatEl.textContent = currentStudent.seatNo || "";
-  if (phoneEl) phoneEl.textContent = currentStudent.phone || "";
+  if (idEl) idEl.textContent = currentStudent ? currentStudent.studentId : "";
+  if (nameEl) nameEl.textContent = currentStudent ? currentStudent.name : "";
+  if (genderEl) genderEl.textContent = currentStudent ? currentStudent.gender : "";
+  if (classEl) classEl.textContent = currentStudent ? currentStudent.className : "";
+  if (seatEl) seatEl.textContent = currentStudent ? currentStudent.seatNo : "";
+  if (phoneEl) phoneEl.textContent = currentStudent ? currentStudent.phone : "";
 
-  const studentInfoBox = document.getElementById("confirm-student-summary");
-  if (studentInfoBox) {
-    studentInfoBox.innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.9rem;">
-        <div><span style="color:var(--text-secondary);">學號 (PK)：</span> <strong>${currentStudent.studentId}</strong></div>
-        <div><span style="color:var(--text-secondary);">班級座號：</span> <strong>${currentStudent.className} (${currentStudent.seatNo}號)</strong></div>
-        <div><span style="color:var(--text-secondary);">姓名：</span> <strong>${currentStudent.name} (${currentStudent.gender})</strong></div>
-        <div><span style="color:var(--text-secondary);">聯絡電話：</span> <strong>${currentStudent.phone}</strong></div>
-      </div>
-    `;
-  }
+  // 渲染購物車品項
+  const itemsContainer = document.getElementById("confirm-items-list") || document.getElementById("confirm-items-summary");
+  const finalTotalEl = document.getElementById("confirm-total-amount") || document.getElementById("confirm-final-total");
 
   let total = 0;
   if (itemsContainer) {
@@ -649,13 +992,14 @@ function populateDoubleConfirmModal() {
       return `
         <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:var(--shadow-sm);margin-bottom:8px;">
           <div style="display:flex;align-items:center;gap:12px;">
-            <img src="${item.imageUrl}" style="width:46px;height:46px;border-radius:6px;object-fit:contain;background:#f3f4f6;border:1px solid var(--border-subtle);">
+            <img src="${item.imageUrl}" style="width:48px;height:48px;border-radius:6px;object-fit:cover;background:#f3f4f6;border:1px solid var(--border-subtle);">
             <div>
               <div style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">${item.name} × ${item.quantity} 件</div>
-              <div style="font-size:0.75rem;color:var(--text-muted);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.notes}">${item.notes}</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.notes}">備註：${item.notes}</div>
+              <div style="font-size:0.72rem;color:var(--sage-green);font-weight:700;">${item.imageRes || "1080P/300DPI"}</div>
             </div>
           </div>
-          <div style="font-weight:800;color:#e11d48;font-size:1rem;">NT$ ${sub}</div>
+          <div style="font-weight:800;color:#e11d48;font-size:1.05rem;">NT$ ${sub}</div>
         </div>
       `;
     }).join("");
@@ -671,22 +1015,69 @@ function populateDoubleConfirmModal() {
 
 function submitFinalOrder() {
   const btn = document.getElementById("btn-confirm-submit");
-  const agreeCheck = document.getElementById("confirm-agree-terms");
+  if (btn && btn.disabled) return;
 
+  const agreeCheck = document.getElementById("confirm-agree-terms");
   if (agreeCheck && !agreeCheck.checked) {
     return showToast("請勾選確認條款，同意客製化商品印製規範及資安承諾！", "warning");
+  }
+
+  if (cart.length === 0) {
+    return showToast("購物車為空，無法送出訂單！", "error");
+  }
+
+  // 取得個資輸入欄位
+  const inputIdEl = document.getElementById("confirm-input-student-id");
+  let studentProfile = null;
+
+  if (inputIdEl) {
+    const inputId = inputIdEl.value.trim();
+    const inputName = document.getElementById("confirm-input-student-name")?.value.trim();
+    const inputClass = document.getElementById("confirm-input-student-class")?.value.trim();
+    const inputSeat = document.getElementById("confirm-input-student-seat")?.value.trim();
+    const inputGender = document.getElementById("confirm-input-student-gender")?.value || "男";
+    const inputPhone = document.getElementById("confirm-input-student-phone")?.value.trim();
+
+    if (!inputId || !inputName || !inputClass || !inputSeat || !inputPhone) {
+      return showToast("請完整填寫 6 項學生訂購人個資（學號、姓名、班級、座號、性別、電話）！", "error", 5000);
+    }
+
+    studentProfile = {
+      studentId: inputId,
+      name: inputName,
+      className: inputClass,
+      seatNo: String(parseInt(inputSeat, 10)),
+      gender: inputGender,
+      phone: inputPhone
+    };
+
+    // 嚴格班級座號唯一性驗證與原子級資料庫更新
+    const upsertRes = ZgDataManager.upsertStudent(studentProfile);
+    if (!upsertRes.success) {
+      alert(upsertRes.message);
+      return showToast(upsertRes.message, "error", 6000);
+    }
+
+    currentStudent = upsertRes.student;
+    updateStudentUI();
+  } else {
+    studentProfile = currentStudent;
+    if (!studentProfile || !studentProfile.studentId) {
+      return showToast("請先填寫訂購人 6 大欄位個資或完成學生登入！", "error");
+    }
   }
 
   if (btn) setButtonLoading(btn, true);
 
   setTimeout(() => {
-    // 執行核心品項拆單與入庫
-    const result = ZgDataManager.splitAndCreateOrders(cart, currentStudent);
+    // 執行核心品項智慧自動拆單與寫入資料庫
+    const result = ZgDataManager.splitAndCreateOrders(cart, studentProfile);
     
     // 清空購物車
     cart = [];
     saveCart();
-    updateCartUI();
+    renderCartItems();
+    updateCartBadge();
 
     if (btn) setButtonLoading(btn, false);
     const checkoutModal = document.getElementById("modal-checkout-confirm") || document.getElementById("modal-double-confirm");
@@ -694,7 +1085,8 @@ function submitFinalOrder() {
 
     // 彈出訂單完成視窗
     openOrderSuccessModal(result.parentOrderId, result.createdOrders);
-  }, 500);
+    showToast(`🎉 訂單成功建立！母單編號：${result.parentOrderId}，已完成智慧拆單！`, "success", 5000);
+  }, 400);
 }
 
 function openOrderSuccessModal(parentOrderId, createdOrders) {
@@ -736,6 +1128,23 @@ function openOrderLookupModal() {
   openModal(modal);
 }
 
+function formatTaiwanOrderTime(timeStr) {
+  if (!timeStr) return "";
+  if (timeStr.includes("T") || timeStr.endsWith("Z")) {
+    const d = new Date(timeStr);
+    if (!isNaN(d.getTime())) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const hours = String(d.getHours()).padStart(2, "0");
+      const mins = String(d.getMinutes()).padStart(2, "0");
+      const secs = String(d.getSeconds()).padStart(2, "0");
+      return `${year}-${month}-${day} ${hours}:${mins}:${secs}`;
+    }
+  }
+  return timeStr;
+}
+
 function searchStudentOrders() {
   const studentId = document.getElementById("lookup-student-id").value.trim();
   const resultBox = document.getElementById("lookup-results-box");
@@ -749,7 +1158,7 @@ function searchStudentOrders() {
 
   if (studentOrders.length === 0) {
     resultBox.innerHTML = `
-      <div style="text-align:center;padding:30px;color:var(--text-muted);">
+      <div style="text-align:center;padding:30px;color:var(--text-muted);background:var(--bg-elevated);border-radius:var(--radius-md);border:1px dashed var(--border-subtle);">
         查無學號 [${studentId}] 的任何訂單，請確認學號或完成結帳！
       </div>
     `;
@@ -757,40 +1166,86 @@ function searchStudentOrders() {
   }
 
   resultBox.innerHTML = studentOrders.map(order => {
-    let badgeClass = "badge-pending";
-    let badgeText = order.qcStatus;
-    let extraNotice = "";
+    let qcBadgeClass = "badge-pending";
+    if (order.qcStatus === "審核通過") qcBadgeClass = "badge-approved";
+    else if (order.qcStatus === "退件") qcBadgeClass = "badge-rejected";
 
+    // 簽收表外送狀態（待配送 / 配送中 / 已送達班級）
+    const delivery = order.deliveryStatus || "待配送";
+    let deliveryBadgeHtml = "";
+    if (delivery === "已送達班級") {
+      deliveryBadgeHtml = `<span style="font-size:0.75rem;font-weight:800;padding:3px 9px;border-radius:12px;background:#dcfce7;color:#15803d;display:inline-flex;align-items:center;gap:4px;">🎉 已送達班級簽收</span>`;
+    } else if (delivery === "配送中") {
+      deliveryBadgeHtml = `<span style="font-size:0.75rem;font-weight:800;padding:3px 9px;border-radius:12px;background:#dbeafe;color:#1e40af;display:inline-flex;align-items:center;gap:4px;">🚚 配送中 (外送員出發中)</span>`;
+    } else {
+      deliveryBadgeHtml = `<span style="font-size:0.75rem;font-weight:800;padding:3px 9px;border-radius:12px;background:#fef3c7;color:#b45309;display:inline-flex;align-items:center;gap:4px;">🛵 待配送 (等待製作或派單)</span>`;
+    }
+
+    // 現金收款狀態
+    const payment = order.paymentStatus || "未收款";
+    const paymentBadgeHtml = payment === "已收款"
+      ? `<span style="font-size:0.72rem;font-weight:800;padding:2px 8px;border-radius:4px;background:#dcfce7;color:#15803d;">🟢 現金已收款</span>`
+      : `<span style="font-size:0.72rem;font-weight:800;padding:2px 8px;border-radius:4px;background:#fee2e2;color:#991b1b;">🔴 現金未收款 (備妥交予外送員)</span>`;
+
+    // 產線印製進度
+    const prod = order.prodStatus || "待印製";
+    const prodBadgeHtml = `<span style="font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.15);color:var(--text-secondary);">⚙️ 產線：${prod}</span>`;
+
+    // 三聯單列印標記
+    const slipBadgeHtml = order.isPrintedSlip
+      ? `<span style="font-size:0.72rem;color:#10b981;font-weight:700;">📄 三聯單：✓ 團隊已列印備查</span>`
+      : `<span style="font-size:0.72rem;color:var(--text-muted);">📄 三聯單：準備列印中</span>`;
+
+    const displayTime = formatTaiwanOrderTime(order.createdAt);
+
+    let extraNotice = "";
     if (order.qcStatus === "審核通過") {
-      badgeClass = "badge-approved";
       extraNotice = `
-        <div style="margin-top:8px;font-size:0.8rem;color:var(--emerald-success);background:rgba(16,185,129,0.1);padding:6px 10px;border-radius:4px;">
-          ✓ 審核通過！進入【3 天送單倒數】，商品製作中，請備妥現金交由現場或外送專員！
+        <div style="margin-top:10px;font-size:0.8rem;color:#10b981;background:rgba(16,185,129,0.1);padding:8px 12px;border-radius:6px;border:1px solid rgba(16,185,129,0.2);">
+          ✓ 審核通過！商品排程印製中，外送專員將送達 <strong>${order.className}</strong> 班級親簽驗收！
         </div>
       `;
     } else if (order.qcStatus === "退件") {
-      badgeClass = "badge-rejected";
       extraNotice = `
-        <div style="margin-top:8px;font-size:0.8rem;color:#f87171;background:rgba(239,68,68,0.1);padding:6px 10px;border-radius:4px;">
-          ✕ 退件原因：${order.qcNote || "圖檔不符合印刷規範，請重新上傳"}
-          ${order.daysSinceReview >= 4 ? "<br><strong>⚠ 警告：已逾期第 4 天未更換圖檔，外送組即將發送紙本通知單至班級！</strong>" : ""}
+        <div style="margin-top:10px;font-size:0.8rem;color:#f87171;background:rgba(239,68,68,0.1);padding:8px 12px;border-radius:6px;border:1px solid rgba(239,68,68,0.2);">
+          ✕ 圖檔退件原因：${order.qcNote || "圖檔不符合印刷規範，請至首頁重新上傳 1080P 清晰原圖"}
+          ${order.daysSinceReview >= 4 ? "<br><strong>⚠ 提醒：已逾期第 4 天未更換圖檔，外送組將發送紙本通知單至班級！</strong>" : ""}
         </div>
       `;
     }
 
     return `
-      <div style="background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px;margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong style="color:var(--gold-glow);">${order.id}</strong>
-          <span style="font-size:0.8rem;font-weight:700;padding:2px 8px;border-radius:4px;" class="${badgeClass}">${badgeText}</span>
-        </div>
-        <div style="margin-top:6px;display:flex;gap:12px;align-items:center;">
-          <img src="${order.imageUrl}" style="width:48px;height:48px;border-radius:4px;object-fit:cover;border:1px solid var(--border-subtle);">
+      <div style="background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px;margin-bottom:14px;box-shadow:var(--shadow-sm);">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
           <div>
-            <div style="font-weight:700;color:#fff;">${order.productName} × ${order.quantity} 件 (NT$ ${order.totalPrice})</div>
-            <div style="font-size:0.75rem;color:var(--text-muted);">下單時間：${order.createdAt} | 雙聯單號：NO.${order.slipNo}</div>
+            <span style="font-size:0.75rem;color:var(--text-muted);margin-right:6px;">工單代碼</span>
+            <strong style="color:var(--gold-glow);font-family:monospace;font-size:0.95rem;">${order.id}</strong>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:0.8rem;font-weight:800;padding:2px 8px;border-radius:4px;" class="${qcBadgeClass}">${order.qcStatus}</span>
+            ${deliveryBadgeHtml}
           </div>
         </div>
+
+        <div style="display:flex;gap:12px;align-items:center;margin-top:8px;">
+          <img src="${order.imageUrl}" style="width:56px;height:56px;border-radius:6px;object-fit:cover;border:1px solid var(--border-subtle);flex-shrink:0;">
+          <div style="flex-grow:1;">
+            <div style="font-weight:800;color:#fff;font-size:0.95rem;">${order.productName} × ${order.quantity} 件</div>
+            <div style="font-weight:800;color:#ff6584;margin-top:2px;">金額：NT$ ${order.totalPrice}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">
+              🕒 下單時間：<strong style="color:var(--teal-primary);">${displayTime}</strong> | 三聯單號：NO.${order.slipNo}
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--border-subtle);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+          <div style="display:flex;gap:6px;align-items:center;">
+            ${paymentBadgeHtml}
+            ${prodBadgeHtml}
+          </div>
+          <div>${slipBadgeHtml}</div>
+        </div>
+
         ${extraNotice}
       </div>
     `;
@@ -1000,14 +1455,36 @@ function triggerPwaInstall() {
 
 function copySiteUrl() {
   const url = window.location.href;
+  copyTextToClipboard(url, '商城網址已複製！請於手機 Safari/Chrome 貼上開啟');
+}
+
+function copyLanUrl() {
+  const lanUrl = 'http://192.168.0.10:8080/';
+  copyTextToClipboard(lanUrl, '📱 手機專用區域網路網址 (http://192.168.0.10:8080/) 已複製！');
+}
+
+function copyTextToClipboard(text, successMsg) {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(() => {
-      showToast('商城網址已複製！請於 iPhone Safari 貼上開啟', 'success');
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(successMsg, 'success');
     }).catch(() => {
-      prompt('請複製以下專案網址：', url);
+      prompt('請複製以下專案網址：', text);
     });
   } else {
-    prompt('請複製以下專案網址：', url);
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showToast(successMsg, 'success');
+    } catch (err) {
+      prompt('請複製以下專案網址：', text);
+    }
+    document.body.removeChild(textArea);
   }
 }
 
@@ -1053,9 +1530,10 @@ function setupEventListeners() {
   document.getElementById("drawer-backdrop")?.addEventListener("click", closeCartDrawer);
   document.getElementById("btn-drawer-checkout")?.addEventListener("click", startCheckoutProcess);
 
-  // 註冊表單
+  // 學生會員與個人資料修改表單
   document.getElementById("user-status-pill")?.addEventListener("click", openStudentAuthModal);
   document.getElementById("form-student-auth")?.addEventListener("submit", saveStudentAuth);
+  document.getElementById("form-student-profile")?.addEventListener("submit", handleSaveStudentProfile);
 
   // 客製工作室加入購物車
   document.getElementById("btn-add-to-cart")?.addEventListener("click", addToCartFromStudio);
@@ -1069,6 +1547,35 @@ function setupEventListeners() {
 
   // 2026 美學導覽與測驗按鈕
   document.getElementById("btn-open-quiz")?.addEventListener("click", openDesignQuizModal);
+
+  // 結帳個資：輸入學號時自動檢索資料庫並自動帶入姓名、班級、座號、性別、電話
+  const chkStudentId = document.getElementById("confirm-input-student-id");
+  if (chkStudentId) {
+    const autoFillHandler = (e) => {
+      const sId = (e.target.value || "").trim();
+      if (sId.length >= 3) {
+        const student = ZgDataManager.getStudents().find(s => s.studentId === sId);
+        if (student) {
+          const inputName = document.getElementById("confirm-input-student-name");
+          const inputClass = document.getElementById("confirm-input-student-class");
+          const inputSeat = document.getElementById("confirm-input-student-seat");
+          const inputGender = document.getElementById("confirm-input-student-gender");
+          const inputPhone = document.getElementById("confirm-input-student-phone");
+          const authBadge = document.getElementById("checkout-auth-badge");
+
+          if (inputName) inputName.value = student.name || "";
+          if (inputClass) inputClass.value = student.className || "";
+          if (inputSeat) inputSeat.value = parseInt(student.seatNo, 10) || "";
+          if (inputGender) inputGender.value = student.gender || "不方便透露";
+          if (inputPhone) inputPhone.value = student.phone || "";
+          if (authBadge) authBadge.textContent = `✨ 已自動帶出【${student.name} 同學】資料`;
+          showToast(`✨ 已自動帶出學號 [${sId}] 登記之姓名、科系班級與聯絡資訊！`, "info", 3000);
+        }
+      }
+    };
+    chkStudentId.addEventListener("blur", autoFillHandler);
+    chkStudentId.addEventListener("change", autoFillHandler);
+  }
 
   // 點擊 Modal 外部或關閉按鈕
   document.querySelectorAll(".modal-overlay").forEach(modal => {
