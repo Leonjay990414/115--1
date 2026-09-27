@@ -78,7 +78,7 @@ class _AdminScreenState extends State<AdminScreen> {
                       ),
                       const SizedBox(height: 20),
                       DropdownButtonFormField<String>(
-                        value: _selectedRole,
+                        initialValue: _selectedRole,
                         decoration: const InputDecoration(labelText: '職位選擇', border: OutlineInputBorder()),
                         items: const [
                           DropdownMenuItem(value: 'admin_director', child: Text('總召 (主辦人)')),

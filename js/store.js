@@ -312,7 +312,7 @@ function openProductDetailModal(productId) {
   if (specsEl) specsEl.textContent = prod.specs || "標準校慶工藝規格";
   if (matEl) matEl.textContent = prod.material || "特級熱昇華工藝材質";
   if (resEl) resEl.textContent = prod.resolutionReq || "建議 1080P 以上 (300 DPI)";
-  if (descEl) descEl.textContent = prod.description || "智光商工 115 年度第六十六屆校慶限定客製紀念商品，由資料處理科師生精心監製，採用高溫熱轉印與直噴工藝。";
+  if (descEl) descEl.textContent = prod.description || "智光商工 115 年度第六十二屆校慶限定客製紀念商品，由資料處理科師生精心監製，採用高溫熱轉印與直噴工藝。";
 
   const status = prod.stockStatus || "in_stock";
   if (stockEl) {
@@ -872,60 +872,8 @@ function updateCartBadge() {
   updateDynamicIsland();
 }
 
-// 🍎 iOS 擬真動態島 (Dynamic Island) 核心互動
-function toggleDynamicIsland(event) {
-  if (event) event.stopPropagation();
-  const island = document.getElementById("ios-dynamic-island");
-  const expanded = document.getElementById("island-expanded-box");
-  if (!island || !expanded) return;
-
-  const isExp = island.classList.contains("is-expanded");
-  if (isExp) {
-    island.classList.remove("is-expanded");
-    expanded.style.display = "none";
-  } else {
-    island.classList.add("is-expanded");
-    expanded.style.display = "flex";
-  }
-}
-
-function updateDynamicIsland() {
-  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-  const badge = document.getElementById("island-cart-badge");
-  if (badge) {
-    badge.textContent = `🛒 ${count}`;
-    badge.style.transform = "scale(1.2)";
-    setTimeout(() => { badge.style.transform = "scale(1)"; }, 250);
-  }
-
-  const totalBadge = document.getElementById("island-total-badge");
-  if (totalBadge) totalBadge.textContent = `NT$ ${total}`;
-
-  const userStatus = document.getElementById("island-user-status");
-  if (userStatus) {
-    if (currentStudent && currentStudent.studentId) {
-      userStatus.textContent = `👤 ${currentStudent.className} (${currentStudent.seatNo}號) ${currentStudent.name}`;
-      userStatus.style.color = "#38bdf8";
-    } else {
-      userStatus.textContent = "💖 尚未登入學生會員";
-      userStatus.style.color = "rgba(255,255,255,0.7)";
-    }
-  }
-}
-
-// 點擊空白處自動收合動態島
-document.addEventListener("click", (e) => {
-  const island = document.getElementById("ios-dynamic-island");
-  const expanded = document.getElementById("island-expanded-box");
-  if (island && expanded && island.classList.contains("is-expanded")) {
-    if (!island.contains(e.target)) {
-      island.classList.remove("is-expanded");
-      expanded.style.display = "none";
-    }
-  }
-});
+// 動態島已依照需求全面移除，保留安全空函式防止調用報錯
+function updateDynamicIsland() {}
 
 // 7. 結帳雙重確認機制 (Double Confirmation) 與核心自動拆單
 function startCheckoutProcess() {

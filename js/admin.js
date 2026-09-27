@@ -851,7 +851,7 @@ function printPhysicalReturnNotice(orderId) {
   container.innerHTML = `
     <div class="return-notice-sheet">
       <div class="return-notice-header">
-        <h1>智光商工職業學校 115 年度第六十六屆校慶圓遊會</h1>
+        <h1>智光商工職業學校 115 年度第六十二屆校慶圓遊會</h1>
         <p>【客製化商品圖檔審核退件 · 實體到班通知單】</p>
       </div>
       <table class="slip-table" style="font-size:11pt;margin:16px 0;">
@@ -942,7 +942,7 @@ function buildSingleSlipHtml(order) {
       <div class="slip-third">
         <div class="slip-header">
           <div class="slip-title-group">
-            <h2>智光商工職業學校 115 年度第六十六屆校慶圓遊會</h2>
+            <h2>智光商工職業學校 115 年度第六十二屆校慶圓遊會</h2>
             <h3>資料處理科客製化商品專案【顧客核對取貨憑證】</h3>
             <span class="slip-badge-pill" style="border-color:#e11d48;color:#e11d48;">★ 第一聯：顧客取貨聯（取貨時交還團隊 · 核蓋防偽章後交付商品）</span>
           </div>
@@ -1013,7 +1013,7 @@ function buildSingleSlipHtml(order) {
       <div class="slip-third">
         <div class="slip-header">
           <div class="slip-title-group">
-            <h2>智光商工職業學校 115 年度第六十六屆校慶圓遊會</h2>
+            <h2>智光商工職業學校 115 年度第六十二屆校慶圓遊會</h2>
             <h3>資料處理科客製化商品專案【專案行政暨派送存根】</h3>
             <span class="slip-badge-pill" style="border-color:#2563eb;color:#2563eb;">★ 第二聯：行政與派送留存（團隊自行保留 · 產線加工與外送核銷）</span>
           </div>
@@ -1086,7 +1086,7 @@ function buildSingleSlipHtml(order) {
       <div class="slip-third">
         <div class="slip-header">
           <div class="slip-title-group">
-            <h2>智光商工職業學校 115 年度第六十六屆校慶圓遊會</h2>
+            <h2>智光商工職業學校 115 年度第六十二屆校慶圓遊會</h2>
             <h3>資料處理科客製化商品專案【團隊製作暨出納核銷存根聯】</h3>
             <span class="slip-badge-pill" style="border-color:#b91c1c;color:#b91c1c;">★ 第三聯：團隊自行保留聯（團隊留存 · 取貨時與第一聯核對）</span>
           </div>
@@ -1397,7 +1397,7 @@ function exportOrdersToExcel() {
 
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "校慶商品訂單總表");
-      const fileName = `智光商工職業學校_115年度第六十六屆校慶圓遊會_訂單總表_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      const fileName = `智光商工職業學校_115年度第六十二屆校慶圓遊會_訂單總表_${new Date().toISOString().slice(0, 10)}.xlsx`;
       XLSX.writeFile(wb, fileName);
 
       ZgDataManager.addLog(`【報表匯出】管理員成功匯出含原圖超連結之 Excel 總表 (${fileName})。`);
@@ -1427,7 +1427,7 @@ function downloadCsvFallback(rowsData) {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `智光商工職業學校_115年度第六十六屆校慶圓遊會_訂單備用總表_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `智光商工職業學校_115年度第六十二屆校慶圓遊會_訂單備用總表_${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

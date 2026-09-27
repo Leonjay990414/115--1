@@ -153,27 +153,6 @@ body {
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* Apple iOS 模式微調 */
-body.theme-apple {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Noto Sans TC', sans-serif;
-  letter-spacing: -0.01em;
-}
-body.theme-apple .btn,
-body.theme-apple .card,
-body.theme-apple .modal-card {
-  border-radius: 20px;
-}
-
-/* Android 模式微調 */
-body.theme-android {
-  font-family: 'Roboto', 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
-}
-body.theme-android .btn,
-body.theme-android .card,
-body.theme-android .modal-card {
-  border-radius: 14px;
-}
-
 /* ==========================================================================
    規格書第二區塊核心：絕對單行截斷與水平滑動鎖定 (Single-Line Lock)
    嚴格防止文字折行破壞版面
@@ -1691,153 +1670,9 @@ body.theme-android .modal-card {
 }
 
 /* ==========================================================================
-   🍎 iOS 擬真動態島 (Dynamic Island) 與圓弧晶透毛玻璃設計 (Glassmorphism)
+   圓弧晶透毛玻璃精品按鈕設計 (Glassmorphism Pill Buttons)
    ========================================================================== */
-.ios-dynamic-island {
-  position: fixed;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9990;
-  background: rgba(18, 18, 24, 0.88);
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 9999px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-  color: #ffffff;
-  padding: 6px 16px;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-width: 280px;
-  max-width: 92vw;
-}
-
-.ios-dynamic-island:hover {
-  transform: translateX(-50%) scale(1.02);
-  border-color: rgba(255, 101, 132, 0.4);
-  box-shadow: 0 12px 36px rgba(255, 101, 132, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-}
-
-.ios-dynamic-island.is-expanded {
-  border-radius: 26px;
-  padding: 16px 20px;
-  min-width: 340px;
-  background: rgba(15, 15, 22, 0.95);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1.5px rgba(255, 101, 132, 0.45);
-}
-
-.island-collapsed-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 12px;
-}
-
-.island-leading {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
-}
-
-.island-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
-  animation: pulse-dot 2s infinite ease-in-out;
-}
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
-}
-
-.island-title {
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  color: #f1f5f9;
-}
-
-.island-ticker {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.78);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 170px;
-}
-
-.island-trailing {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.island-cart-pill {
-  font-size: 0.72rem;
-  font-weight: 800;
-  padding: 3px 9px;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #ff6584, #f59e0b);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(255, 101, 132, 0.4);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.island-expanded-content {
-  width: 100%;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.island-expanded-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.island-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.island-btn {
-  flex: 1;
-  padding: 8px 10px;
-  font-size: 0.76rem;
-  font-weight: 700;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-  backdrop-filter: blur(10px);
-}
-
-.island-btn:hover {
-  background: rgba(255, 101, 132, 0.35);
-  border-color: rgba(255, 101, 132, 0.6);
-  transform: translateY(-1px);
-}
-
-/* 🍎 iOS 擬真毛玻璃圓弧晶透按鍵 (iOS Glassmorphism Pill Buttons) */
-body.theme-apple .btn {
+.btn {
   border-radius: 9999px !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
@@ -1846,21 +1681,21 @@ body.theme-apple .btn {
   overflow: hidden;
 }
 
-body.theme-apple .btn:active {
+.btn:active {
   transform: scale(0.96) !important;
 }
 
-body.theme-apple .btn-primary {
+.btn-primary {
   box-shadow: 0 4px 18px rgba(255, 101, 132, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
 }
 
-body.theme-apple .btn-secondary {
+.btn-secondary {
   background: rgba(255, 255, 255, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.85) !important;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
 }
 
-body.theme-apple .btn-secondary:hover {
+.btn-secondary:hover {
   background: rgba(255, 255, 255, 0.95) !important;
   border-color: rgba(255, 101, 132, 0.4) !important;
   box-shadow: 0 6px 16px rgba(255, 101, 132, 0.15) !important;

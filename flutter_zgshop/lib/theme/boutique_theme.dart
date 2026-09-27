@@ -65,13 +65,13 @@ class BoutiqueTheme {
           fontWeight: FontWeight.w900,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surface,
         elevation: 3,
-        shadowColor: glitterPink.withOpacity(0.15),
+        shadowColor: glitterPink.withValues(alpha: 0.15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: borderSubtle.withOpacity(0.4), width: 1),
+          side: BorderSide(color: borderSubtle.withValues(alpha: 0.4), width: 1),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(

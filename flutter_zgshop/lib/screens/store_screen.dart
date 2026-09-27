@@ -105,7 +105,7 @@ class _StoreScreenState extends State<StoreScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
+                          color: Colors.white.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
@@ -135,7 +135,7 @@ class _StoreScreenState extends State<StoreScreen> {
               decoration: BoxDecoration(
                 color: BoutiqueTheme.surfaceWarm,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: BoutiqueTheme.borderSubtle.withOpacity(0.5)),
+                border: Border.all(color: BoutiqueTheme.borderSubtle.withValues(alpha: 0.5)),
               ),
               child: Row(
                 children: [
@@ -227,7 +227,7 @@ class _StoreScreenState extends State<StoreScreen> {
                 fit: StackFit.expand,
                 children: [
                   Container(
-                    color: Colors.grey.shade150,
+                    color: Colors.grey.shade200,
                     child: Center(
                       child: Icon(Icons.image, size: 48, color: Colors.grey.shade400),
                     ),
@@ -241,7 +241,7 @@ class _StoreScreenState extends State<StoreScreen> {
                         color: badgeColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
-                          BoxShadow(color: badgeColor.withOpacity(0.4), blurRadius: 4),
+                          BoxShadow(color: badgeColor.withValues(alpha: 0.4), blurRadius: 4),
                         ],
                       ),
                       child: Text(

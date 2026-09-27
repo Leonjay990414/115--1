@@ -82,7 +82,7 @@ class _MainScreenState extends State<MainScreen> {
         selectedIndex: _currentIndex,
         backgroundColor: Colors.white,
         elevation: 6,
-        indicatorColor: BoutiqueTheme.glitterPink.withOpacity(0.2),
+        indicatorColor: BoutiqueTheme.glitterPink.withValues(alpha: 0.2),
         onDestinationSelected: (idx) => setState(() => _currentIndex = idx),
         destinations: [
           const NavigationDestination(

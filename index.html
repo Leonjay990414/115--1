@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <base href="./">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>智光商工職業學校 115 年度第六十六屆校慶圓遊會 - 客製商品旗艦工坊 (ZG Boutique)</title>
+  <title>智光商工職業學校 115 年度第六十二屆校慶圓遊會 - 客製商品旗艦工坊 (ZG Boutique)</title>
   
-  <meta name="description" content="智光商工職業學校 115 年度第六十六屆校慶圓遊會客製化紀念商品官方線上商城。支援 1080P 圖檔驗證、班級座號防呆、智慧拆單與行動 App 快速安裝！">
+  <meta name="description" content="智光商工職業學校 115 年度第六十二屆校慶圓遊會客製化紀念商品官方線上商城。支援 1080P 圖檔驗證、班級座號防呆、智慧拆單與行動 App 快速安裝！">
   <link rel="icon" type="image/png" href="assets/images/favicon.png">
   <link rel="apple-touch-icon" href="assets/images/icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -20,6 +20,7 @@
     .boutique-title-gradient {
       background: linear-gradient(135deg, #e11d48 0%, #f43f5e 40%, #d97706 100%);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       display: inline-block;
       font-weight: 900;
@@ -73,24 +74,11 @@
     }
   </style>
 </head>
-<body class="theme-apple">
+<body>
 
   <div id="toast-container" aria-live="polite"></div>
 
-  <!-- 🍎 iOS 擬真動態島 (Dynamic Island) 頂部懸浮膠囊 -->
-  <div id="ios-dynamic-island" class="ios-dynamic-island" onclick="toggleDynamicIsland(event)" title="點擊展開 / 收合 iOS 動態島控制台">
-    <div class="island-collapsed-content">
-      <div class="island-leading">
-        <span class="island-dot"></span>
-        <span class="island-title">115 校慶圓遊會</span>
-      </div>
-      <div class="island-ticker" id="island-ticker-text">
-        ✨ 1080P 客製熱轉印工坊 · 即時接單中
-      </div>
-      <div class="island-trailing">
-        <span class="island-cart-pill" id="island-cart-badge">🛒 0</span>
-      </div>
-    </div>
+  
     <!-- 展開面板 -->
     <div class="island-expanded-content" id="island-expanded-box" style="display:none;">
       <div class="island-expanded-header">
@@ -118,18 +106,12 @@
         <img src="assets/images/logo.png" alt="智光創客商城" class="brand-logo">
         <div class="brand-titles">
           <span class="brand-main-title">✨ ZG BOUTIQUE</span>
-          <span class="brand-sub-title">智光商工職業學校 115 年度第六十六屆校慶圓遊會 × 資處科工坊</span>
+          <span class="brand-sub-title">智光商工職業學校 115 年度第六十二屆校慶圓遊會 × 資處科工坊</span>
         </div>
       </a>
 
       <!-- 導覽功能操作區 -->
       <div class="nav-actions">
-        <!-- iOS / Android 雙系統版本切換開關 -->
-        <div class="os-theme-toggle" title="切換 iOS / Android 雙系統體驗">
-          <button id="btn-theme-apple" class="os-toggle-btn active" onclick="setOsTheme('apple')">🍎 iOS 版</button>
-          <button id="btn-theme-android" class="os-toggle-btn" onclick="setOsTheme('android')">🤖 Android 版</button>
-        </div>
-
         <!-- 學生會員認證按鈕 -->
         <button id="user-status-pill" class="user-status-pill" title="點擊進行學生登入或註冊">
           <span id="user-status-dot" class="user-dot"></span>
@@ -137,7 +119,7 @@
         </button>
 
         <!-- 下載/安裝手機 App 按鈕 -->
-        <button id="btn-open-app-modal" class="btn btn-primary" style="padding:7px 14px;font-size:0.85rem;background:linear-gradient(135deg, #ff6584, #f59e0b);border:none;box-shadow:0 4px 12px rgba(255,101,132,0.3);" title="下載 Android APK 安裝檔 / iOS 免安裝加入桌面">
+        <button id="btn-open-app-modal" class="btn btn-primary" style="padding:7px 14px;font-size:0.85rem;background:linear-gradient(135deg, #ff6584, #f59e0b);border:none;box-shadow:0 4px 12px rgba(255,101,132,0.3);" title="手機專屬 App 一鍵加入桌面與極速體驗">
           <span>📲 下載 App</span>
         </button>
 
@@ -176,7 +158,7 @@
     <div class="app-strip-inner">
       <span class="app-strip-badge">✨ 官方 App 正式發布</span>
       <span class="app-strip-text">
-        <strong>智光商工校慶商城 App</strong> 已上線！支援 <strong>Android APK 直接下載</strong> 與 <strong>iOS 快速加入主畫面</strong>，無網址列全螢幕極速體驗！
+        <strong>智光商工校慶商城 App</strong> 已上線！支援手機快速加入主畫面，無網址列全螢幕極速體驗！
       </span>
       <span class="app-strip-cta">立即下載 / 安裝 ➔</span>
     </div>
@@ -197,7 +179,7 @@
       
       <h1 class="hero-title" style="font-size:2.2rem;line-height:1.3;margin-bottom:14px;">
         為青春印製專屬回憶<br>
-        <span class="boutique-title-gradient">第六十六屆校慶客製化紀念商品 線上旗艦商城</span>
+        <span class="boutique-title-gradient">第六十二屆校慶客製化紀念商品 線上旗艦商城</span>
       </h1>
       
       <p class="hero-desc" style="max-width:760px;margin:0 auto 20px;font-size:0.95rem;color:var(--text-secondary);">
@@ -456,7 +438,7 @@
           <span style="font-size:1.6rem;">🛍️</span>
           <div>
             <h3 class="modal-title" id="detail-prod-name" style="font-size:1.25rem;color:var(--text-primary);font-weight:900;">商品簡介與規格</h3>
-            <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">智光商工職業學校 115 年度第六十六屆校慶客製化專案</p>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">智光商工職業學校 115 年度第六十二屆校慶客製化專案</p>
           </div>
         </div>
         <button class="drawer-close-btn modal-close-trigger">✕</button>
@@ -774,7 +756,7 @@
           <img src="assets/images/icon-192.png" alt="App Icon" style="width:42px;height:42px;border-radius:10px;box-shadow:var(--shadow-sm);border:1px solid var(--border-subtle);">
           <div>
             <h3 class="modal-title" style="font-size:1.2rem;color:var(--text-primary);">📱 智光創客商城 官方行動 App 安裝中心</h3>
-            <p style="font-size:0.78rem;color:var(--text-muted);margin:0;">支援 Android APK 直接下載 &amp; iOS 免審查一鍵安裝至桌面</p>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin:0;">支援手機免審查一鍵安裝至桌面，享受獨立全螢幕極速體驗</p>
           </div>
         </div>
         <button class="drawer-close-btn modal-close-trigger">✕</button>
@@ -782,10 +764,10 @@
 
       <div style="display:flex;border-bottom:1px solid var(--border-subtle);background:var(--bg-subtle-warm);padding:0 16px;">
         <button id="tab-btn-android" class="app-tab-btn active" onclick="switchAppTab('android')">
-          <span>🤖 Android 用戶 (APK 下載 &amp; PWA)</span>
+          <span>📱 手機一鍵安裝 (PWA / 桌面捷徑)</span>
         </button>
         <button id="tab-btn-ios" class="app-tab-btn" onclick="switchAppTab('ios')">
-          <span>🍎 iOS 用戶 (iPhone / iPad)</span>
+          <span>🍎 iPhone 安裝指南 (加入主畫面)</span>
         </button>
         <button id="tab-btn-qr" class="app-tab-btn" onclick="switchAppTab('qr')">
           <span>💻 跨裝置掃碼互聯</span>
@@ -800,7 +782,7 @@
               <span style="font-size:1.6rem;">🤖</span>
               <div>
                 <h4 style="font-size:1.1rem;font-weight:900;color:var(--text-primary);margin:0;">
-                  Android 官方專屬行動 App (WebAPK 原生體驗)
+                  官方專屬行動 App (WebAPK 原生體驗)
                 </h4>
                 <p style="font-size:0.78rem;color:var(--text-muted);margin:0;">
                   支援 Samsung / ASUS / 小米 / OPPO / Vivo / Pixel 等所有 Android 手機與平板
@@ -854,7 +836,7 @@
               <span style="font-size:1.6rem;">🍎</span>
               <div>
                 <h4 style="font-size:1.05rem;font-weight:900;color:var(--warm-sand-hover);margin:0;">
-                  iOS (iPhone / iPad) 官方免審查桌面 App (WebClip)
+                  iPhone / iPad 官方免審查桌面 App (WebClip)
                 </h4>
                 <p style="font-size:0.78rem;color:var(--text-secondary);margin:0;">
                   由 Apple 官方原生支援，無需越獄或 App Store 下載，極速安裝！
@@ -904,7 +886,7 @@
             📷 手機相機掃描 QR Code 立即開啟
           </h4>
           <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px;">
-            同 Wi-Fi 區域網路專屬連結 · 拿起 iPhone 或 Android 手機相機直接對準掃描：
+            同 Wi-Fi 區域網路專屬連結 · 拿起手機相機直接對準掃描：
           </p>
           <div style="display:inline-block;padding:14px;background:#ffffff;border:2px solid var(--border-subtle);border-radius:var(--radius-md);box-shadow:var(--shadow-md);margin-bottom:14px;">
             <img src="assets/images/app-install-qr.png" alt="商城手機連線 QR Code" style="width:210px;height:210px;display:block;border-radius:8px;">
@@ -915,7 +897,7 @@
           <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:14px;">
             💡 提示：請確保手機與本電腦連線至同一個 Wi-Fi 網路即可秒速存取！
           <div style="font-size:0.82rem;color:var(--text-muted);margin-top:12px;">
-            ✨ 相機掃碼直接跳轉 · 支援 Android 瀏覽器與 iOS Safari
+            ✨ 相機掃碼直接跳轉 · 支援各型號智慧型手機瀏覽器
           </div>
         </div>
       </div>
@@ -955,7 +937,7 @@
       <div>
         <h4 class="footer-block-title">關於智光創客商城</h4>
         <p class="footer-text">
-          智光商工職業學校 115 年度第六十六屆校慶圓遊會客製化紀念商品專案。<br>
+          智光商工職業學校 115 年度第六十二屆校慶圓遊會客製化紀念商品專案。<br>
           由「資料處理科」團隊主導開發、熱昇華印製與全校金流拆單作業，落實技職教育實作精神。
         </p>
       </div>
@@ -1019,20 +1001,6 @@
   <script src="js/data.js"></script>
   <script src="js/store.js"></script>
   
-  <script>
-    // Apple / Android 雙系統主題切換
-    function setOsTheme(theme) {
-      document.body.classList.remove('theme-apple', 'theme-android');
-      document.body.classList.add('theme-' + theme);
-      document.getElementById('btn-theme-apple')?.classList.toggle('active', theme === 'apple');
-      document.getElementById('btn-theme-android')?.classList.toggle('active', theme === 'android');
-      localStorage.setItem('zg_os_theme', theme);
-      showToast(`已切換至【${theme === 'apple' ? '🍎 Apple iOS' : '🤖 Android'}】介面模式！`, 'info');
-    }
-
-    // 載入儲存的主題偏好
-    const savedTheme = localStorage.getItem('zg_os_theme') || (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? 'apple' : 'android');
-    setOsTheme(savedTheme);
-  </script>
+  
 </body>
 </html>

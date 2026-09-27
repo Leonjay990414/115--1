@@ -30,7 +30,7 @@ class _PreOrderNoticeDialogState extends State<PreOrderNoticeDialog> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: BoutiqueTheme.glitterPink.withOpacity(0.15),
+                    color: BoutiqueTheme.glitterPink.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Text('💎', style: TextStyle(fontSize: 22)),
@@ -158,7 +158,7 @@ class _PreOrderNoticeDialogState extends State<PreOrderNoticeDialog> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withValues(alpha: 0.06),
         border: Border(left: BorderSide(color: color, width: 4)),
         borderRadius: BorderRadius.circular(8),
       ),
