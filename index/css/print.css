@@ -1,0 +1,589 @@
+/* ==========================================================================
+   智光商工 115學年度 第62屆校慶園遊會 - A4 雙聯確認單與列印排版樣式
+   標準 A4 尺寸 (210mm x 297mm) 精準上下聯分割套印排版
+   ========================================================================== */
+
+/* 預設非列印狀態下，列印專用容器隱藏 */
+#print-double-slip-container,
+#print-return-notice-container {
+  display: none;
+}
+
+/* 螢幕預覽模式與列印通用之雙聯單視覺樣式 */
+.slip-screen-preview-wrapper .a4-page {
+  width: 100%;
+  background: #fff;
+  color: #000;
+  font-family: 'Noto Sans TC', 'Times New Roman', serif;
+}
+
+.slip-screen-preview-wrapper .slip-half,
+.slip-half {
+  border: 2px solid #000;
+  border-radius: 4px;
+  padding: 12px 16px;
+  background: #fff;
+  color: #000;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+}
+
+/* 標準 A4 三聯確認單 (上聯顧客取貨 / 中聯專案留存 / 下聯財務存查) */
+.slip-screen-preview-wrapper .slip-third,
+.slip-third {
+  border: 1.5px solid #000;
+  border-radius: 4px;
+  padding: 8px 12px;
+  background: #fff;
+  color: #000;
+  box-sizing: border-box;
+  margin-bottom: 6px;
+}
+
+.slip-screen-preview-wrapper .tear-line-divider,
+.tear-line-divider {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  text-align: center;
+  font-size: 11px;
+  color: #333;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin: 10px 0;
+}
+
+.slip-screen-preview-wrapper .tear-line-divider::before,
+.tear-line-divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1.5px dashed #000;
+  z-index: 1;
+}
+
+.slip-screen-preview-wrapper .tear-line-divider span,
+.tear-line-divider span {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+  padding: 0 16px;
+}
+
+.slip-screen-preview-wrapper .slip-header,
+.slip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #000;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+
+.slip-screen-preview-wrapper .slip-title-group h2,
+.slip-title-group h2 {
+  font-size: 14pt;
+  font-weight: 900;
+  margin: 0;
+  line-height: 1.2;
+  color: #000;
+}
+
+.slip-screen-preview-wrapper .slip-title-group h3,
+.slip-title-group h3 {
+  font-size: 11pt;
+  font-weight: 700;
+  margin: 2px 0 0;
+  color: #222;
+}
+
+.slip-screen-preview-wrapper .slip-badge-pill,
+.slip-badge-pill {
+  display: inline-block;
+  border: 1.5px solid #000;
+  padding: 2px 8px;
+  font-size: 9pt;
+  font-weight: 900;
+  border-radius: 3px;
+  margin-top: 3px;
+}
+
+.slip-screen-preview-wrapper .slip-no-box,
+.slip-no-box {
+  text-align: right;
+}
+
+.slip-screen-preview-wrapper .slip-serial,
+.slip-serial {
+  font-size: 15pt;
+  font-weight: 900;
+  color: #b91c1c; /* 紅色防偽流水號 */
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+
+.slip-screen-preview-wrapper .slip-barcode-text,
+.slip-barcode-text {
+  font-size: 9pt;
+  font-family: monospace;
+  color: #000;
+}
+
+.slip-screen-preview-wrapper .slip-table,
+.slip-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin-bottom: 6px;
+}
+
+.slip-screen-preview-wrapper .slip-table th,
+.slip-screen-preview-wrapper .slip-table td,
+.slip-table th, .slip-table td {
+  border: 1px solid #000;
+  padding: 4px 6px;
+  line-height: 1.3;
+}
+
+.slip-screen-preview-wrapper .slip-table th,
+.slip-table th {
+  background: #f0f0f0 !important;
+  font-weight: 800;
+  width: 18%;
+  text-align: center;
+}
+
+.slip-screen-preview-wrapper .slip-table td,
+.slip-table td {
+  font-weight: 600;
+}
+
+.slip-screen-preview-wrapper .slip-signatures-row,
+.slip-signatures-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 10px;
+  border: 1px solid #000;
+  padding: 6px 10px;
+  background: #fafafa !important;
+  font-size: 9pt;
+}
+
+.slip-screen-preview-wrapper .sig-block,
+.sig-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 48px;
+}
+
+.slip-screen-preview-wrapper .sig-label,
+.sig-label {
+  font-weight: 800;
+}
+
+.slip-screen-preview-wrapper .sig-line,
+.sig-line {
+  border-bottom: 1px solid #000;
+  margin-top: auto;
+  padding-bottom: 2px;
+  color: #666;
+  font-size: 8pt;
+}
+
+.slip-screen-preview-wrapper .slip-footer-disclaimer,
+.slip-footer-disclaimer {
+  font-size: 7.5pt;
+  color: #444;
+  line-height: 1.3;
+  margin-top: 4px;
+  text-align: justify;
+}
+
+@media print {
+  /* 徹底隱藏網頁上所有普通 DOM 與對話框，脫離文件排版流，防止產生空白頁或阻擋列印 */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  body > *:not(#print-double-slip-container):not(#print-return-notice-container) {
+    display: none !important;
+  }
+
+  /* 顯示列印專用容器，採用 static 自然排版流，完全杜絕空頁 */
+  #print-double-slip-container,
+  #print-return-notice-container {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+    font-family: 'Noto Sans TC', 'Times New Roman', serif;
+    overflow: visible !important;
+  }
+
+  #print-double-slip-container *,
+  #print-return-notice-container * {
+    visibility: visible !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 6mm 8mm;
+  }
+
+  /* A4 雙聯單整頁容器 (精準容納在 1 張 A4) */
+  .a4-page {
+    width: 100%;
+    max-height: 268mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-after: always;
+    break-after: page;
+    box-sizing: border-box;
+  }
+
+  /* 單聯卡片 */
+  .slip-half {
+    border: 2px solid #000;
+    border-radius: 4px;
+    padding: 10px 14px;
+    height: 128mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  /* A4 三聯確認單整頁容器 (每聯約 82mm，嚴格保證單張 A4 容納，絕不產生末尾空白頁) */
+  .a4-page.triple-slip-page {
+    width: 100%;
+    height: 268mm;
+    max-height: 268mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    page-break-after: always;
+    break-after: page;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  /* 終極防呆：最後一張單據絕對不可產生 page break，徹底消滅最後空白頁！ */
+  .a4-page.triple-slip-page:last-child {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .slip-third {
+    border: 1.5px solid #000;
+    border-radius: 3px;
+    padding: 4px 8px;
+    height: 83mm;
+    max-height: 83mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .slip-third .slip-header {
+    border-bottom: 1.5px solid #000;
+    padding-bottom: 2px;
+    margin-bottom: 2px;
+  }
+
+  .slip-third .slip-title-group h2 {
+    font-size: 10.5pt;
+    font-weight: 900;
+    margin: 0;
+    line-height: 1.1;
+    color: #000;
+  }
+
+  .slip-third .slip-title-group h3 {
+    font-size: 8.5pt;
+    font-weight: 700;
+    margin: 1px 0 0;
+    color: #222;
+  }
+
+  .slip-third .slip-badge-pill {
+    font-size: 7pt;
+    padding: 1px 5px;
+    margin-top: 1px;
+  }
+
+  .slip-third .slip-serial {
+    font-size: 12pt;
+    font-weight: 900;
+    color: #b91c1c;
+  }
+
+  .slip-third .slip-barcode-text {
+    font-size: 7.5pt;
+  }
+
+  .slip-third .slip-table {
+    font-size: 7.5pt;
+    margin-bottom: 2px;
+  }
+
+  .slip-third .slip-table th,
+  .slip-third .slip-table td {
+    padding: 2px 4px;
+    line-height: 1.15;
+  }
+
+  .slip-third .slip-table th {
+    width: 15%;
+  }
+
+  .slip-third .slip-signatures-row {
+    grid-template-columns: 1fr 1fr 1.2fr;
+    gap: 6px;
+    padding: 3px 6px;
+    font-size: 7.5pt;
+  }
+
+  .slip-third .sig-block {
+    height: 32px;
+  }
+
+  .slip-third .sig-line {
+    font-size: 6.8pt;
+    padding-bottom: 1px;
+  }
+
+  .slip-third .seal-stamp-box {
+    border: 1.5px dashed #b91c1c;
+    border-radius: 4px;
+    color: #b91c1c;
+    padding: 1px 4px;
+    text-align: center;
+    background: rgba(185, 28, 28, 0.04);
+  }
+
+  .slip-third .slip-footer-disclaimer {
+    font-size: 6.5pt;
+    color: #444;
+    line-height: 1.15;
+    margin-top: 2px;
+  }
+
+  .tear-line-divider.compact {
+    height: 6mm;
+    font-size: 8.5px;
+    margin: 2px 0;
+  }
+
+  /* 中間撕線 (Tear Line with Scissors) */
+  .tear-line-divider {
+    height: 10mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    text-align: center;
+    font-size: 11px;
+    color: #333;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+
+  .tear-line-divider::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    border-top: 1.5px dashed #000;
+    z-index: 1;
+  }
+
+  .tear-line-divider span {
+    position: relative;
+    z-index: 2;
+    background: #fff;
+    padding: 0 16px;
+  }
+
+  /* 聯單標頭 */
+  .slip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #000;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+  }
+
+  .slip-title-group h2 {
+    font-size: 15pt;
+    font-weight: 900;
+    margin: 0;
+    line-height: 1.2;
+    color: #000;
+  }
+
+  .slip-title-group h3 {
+    font-size: 11pt;
+    font-weight: 700;
+    margin: 2px 0 0;
+    color: #222;
+  }
+
+  .slip-badge-pill {
+    display: inline-block;
+    border: 1.5px solid #000;
+    padding: 2px 8px;
+    font-size: 9pt;
+    font-weight: 900;
+    border-radius: 3px;
+    margin-top: 3px;
+  }
+
+  .slip-no-box {
+    text-align: right;
+  }
+
+  .slip-serial {
+    font-size: 15pt;
+    font-weight: 900;
+    color: #b91c1c; /* 紅色防偽流水號 */
+    font-family: monospace;
+    letter-spacing: 1px;
+  }
+
+  .slip-barcode-text {
+    font-size: 9pt;
+    font-family: monospace;
+    color: #000;
+  }
+
+  /* 訂單資訊網格表格 */
+  .slip-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin-bottom: 6px;
+  }
+
+  .slip-table th, .slip-table td {
+    border: 1px solid #000;
+    padding: 4px 6px;
+    line-height: 1.3;
+  }
+
+  .slip-table th {
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-weight: 800;
+    width: 18%;
+    text-align: center;
+  }
+
+  .slip-table td {
+    font-weight: 600;
+  }
+
+  .slip-note-text {
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    max-width: 380px;
+    display: block;
+  }
+
+  /* 簽章與核銷區域 */
+  .slip-signatures-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr;
+    gap: 10px;
+    border: 1px solid #000;
+    padding: 6px 10px;
+    background: #fafafa !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 9pt;
+  }
+
+  .sig-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 48px;
+  }
+
+  .sig-label {
+    font-weight: 800;
+  }
+
+  .sig-line {
+    border-bottom: 1px solid #000;
+    margin-top: auto;
+    padding-bottom: 2px;
+    color: #666;
+    font-size: 8pt;
+  }
+
+  .slip-footer-disclaimer {
+    font-size: 7.5pt;
+    color: #444;
+    line-height: 1.3;
+    margin-top: 4px;
+    text-align: justify;
+  }
+
+  /* 第4天圖檔退件通知單樣式 (外送專員送達班級專用) */
+  .return-notice-sheet {
+    border: 3px double #000;
+    padding: 16px 20px;
+    margin: 10mm auto;
+    max-width: 190mm;
+    background: #fff;
+    color: #000;
+  }
+
+  .return-notice-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+
+  .return-notice-header h1 {
+    font-size: 18pt;
+    font-weight: 900;
+    color: #b91c1c;
+    margin-bottom: 4px;
+  }
+
+  .return-notice-header p {
+    font-size: 10pt;
+    color: #333;
+    font-weight: bold;
+  }
+}

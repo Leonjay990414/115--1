@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <base href="./">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智光商工 62週年校慶 | 後台管理與產線審核系統 (隱密管理閘道)</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#fbf9f5">
+
+  <!-- Supabase Cloud SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- 2026 雲舞白 × 變革藍綠 全球美學樣式表 -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/print.css">
+
+  <style>
+    /* 2026 美學後台樣式防禦變數 */
+    :root {
+      --bg-main: #fbf9f5;
+      --bg-surface: #ffffff;
+      --bg-subtle-warm: #f6f3ed;
+      --teal-primary: #12636b;
+      --teal-hover: #0e4f55;
+      --teal-soft-bg: rgba(18, 99, 107, 0.08);
+      --teal-border: rgba(18, 99, 107, 0.25);
+      --text-primary: #1b2e35;
+      --text-secondary: #4a5c64;
+      --text-muted: #7d8f97;
+      --border-subtle: #e5ded3;
+    }
+
+    /* 2026 淺色系後台專用高階介面元件 */
+    .admin-layout {
+      display: flex;
+      min-height: 100vh;
+      background: var(--bg-main);
+    }
+
+    .admin-sidebar {
+      width: 260px;
+      background: #ffffff;
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      box-shadow: 2px 0 16px rgba(70, 55, 40, 0.03);
+    }
+
+    .admin-sidebar-header {
+      padding: 22px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-subtle-warm);
+    }
+
+    .admin-nav-list {
+      list-style: none;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-grow: 1;
+    }
+
+    .admin-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+      border-radius: 9999px !important;
+      color: var(--text-secondary);
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .admin-tab-btn:hover {
+      background: var(--bg-subtle-warm);
+      color: var(--text-primary);
+      transform: translateX(4px);
+    }
+
+    .admin-tab-btn.active {
+      background: var(--teal-soft-bg);
+      border-color: var(--teal-border);
+      color: var(--teal-primary);
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(18, 99, 107, 0.08);
+    }
+
+    .admin-content-area {
+      flex-grow: 1;
+      overflow-y: auto;
+      background: var(--bg-main);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-topbar {
+      height: 70px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      box-shadow: 0 2px 10px rgba(70, 55, 40, 0.02);
+    }
+
+    .admin-view-body {
+      padding: 28px;
+      flex-grow: 1;
+    }
+
+    .admin-tab-content {
+      display: none;
+    }
+
+    .admin-tab-content.active {
+      display: block;
+    }
+
+    /* 表格樣式 (白底暖灰邊框高對比) */
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      background: #ffffff;
+    }
+
+    .admin-table th, .admin-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      text-align: left;
+    }
+
+    .admin-table th {
+      background: var(--bg-subtle-warm);
+      color: var(--text-secondary);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .admin-table tr:hover td {
+      background: rgba(18, 99, 107, 0.03);
+    }
+
+    .table-img-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: transform 0.2s;
+      background: #fff;
+    }
+
+    .table-img-thumb:hover {
+      transform: scale(1.15);
+      border-color: var(--teal-primary);
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: var(--teal-soft-bg);
+      border: 1px solid var(--teal-border);
+      color: var(--teal-primary);
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 0.82rem;
+    }
+  
+    /* 2026 美學全螢幕排版與抽屜漢堡選單 (Full-Width Responsive Drawer Layout) */
+    .admin-layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      width: 100%;
+      background: var(--bg-main, #fbf9f5);
+      position: relative;
+    }
+
+    /* 頂部資訊列 (Header / Topbar) - 絕對不換行、緊密優雅 */
+    .admin-topbar {
+      height: 68px;
+      border-bottom: 1px solid var(--border-subtle, #e5ded3);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 12px rgba(70, 55, 40, 0.04);
+      gap: 16px;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding: 4px 0;
+      scrollbar-width: none;
+    }
+    .topbar-right::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* 漢堡按鈕 (☰ 三條線選單按鈕) */
+    .btn-hamburger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      background: #ffffff;
+      border: 1.5px solid var(--teal-primary, #12636b);
+      color: var(--teal-primary, #12636b);
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(18, 99, 107, 0.12);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-hamburger:hover {
+      background: rgba(18, 99, 107, 0.08);
+      transform: scale(1.03);
+    }
+
+    /* 頂部標題與狀態徽章 - 單行不換行 */
+    .admin-title-badge {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--text-primary, #1b2e35);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .admin-safe-status {
+      font-size: 0.76rem;
+      color: var(--teal-primary, #12636b);
+      background: rgba(18, 99, 107, 0.08);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      border: 1px solid rgba(18, 99, 107, 0.25);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* 頂部膠囊按鈕 (Pill Action Buttons) - 色彩豐富有活力，非灰色 */
+    .topbar-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 15px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      border-radius: 9999px;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+      height: 38px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      flex-shrink: 0;
+    }
+    .topbar-pill-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    .pill-teal {
+      background: #ffffff;
+      border: 1.5px solid #12636b;
+      color: #12636b;
+    }
+    .pill-teal:hover {
+      background: rgba(18, 99, 107, 0.08);
+    }
+    .pill-indigo {
+      background: #ffffff;
+      border: 1.5px solid #6366f1;
+      color: #4f46e5;
+    }
+    .pill-indigo:hover {
+      background: rgba(99, 102, 241, 0.08);
+    }
+    .pill-rose {
+      background: #ffffff;
+      border: 1.5px solid #f43f5e;
+      color: #e11d48;
+    }
+    .pill-rose:hover {
+      background: rgba(244, 63, 94, 0.08);
+    }
+    .pill-emerald {
+      background: #ffffff;
+      border: 1.5px solid #059669;
+      color: #047857;
+    }
+    .pill-emerald:hover {
+      background: rgba(5, 150, 105, 0.08);
+    }
+    .pill-sky {
+      background: #0284c7;
+      border: 1.5px solid #0284c7;
+      color: #ffffff;
+    }
+    .pill-sky:hover {
+      background: #0369a1;
+      border-color: #0369a1;
+    }
+    .pill-amber {
+      background: #ffffff;
+      border: 1.5px solid #d97706;
+      color: #b45309;
+    }
+    .pill-amber:hover {
+      background: rgba(217, 119, 6, 0.08);
+    }
+    .pill-slate {
+      background: #ffffff;
+      border: 1.5px solid #94a3b8;
+      color: #475569;
+    }
+    .pill-slate:hover {
+      background: rgba(239, 68, 68, 0.08);
+      color: #dc2626;
+      border-color: #dc2626;
+    }
+
+    /* 抽屜遮罩層 */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 28, 35, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: 3999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+    }
+    .drawer-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* 抽屜側邊選單 (Slide-out Drawer) */
+    .admin-drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 320px;
+      max-width: 85vw;
+      background: #ffffff;
+      z-index: 4000;
+      box-shadow: 6px 0 32px rgba(0, 0, 0, 0.18);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      border-right: 1px solid var(--border-subtle, #e5ded3);
+    }
+    .admin-drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-subtle, #e5ded3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-subtle-warm, #f6f3ed);
+    }
+
+    .drawer-body {
+      padding: 14px 12px;
+      overflow-y: auto;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .drawer-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border-subtle, #e5ded3);
+      background: var(--bg-subtle-warm, #f6f3ed);
+    }
+
+    .admin-content-area {
+      flex-grow: 1;
+      width: 100%;
+      background: var(--bg-main, #fbf9f5);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-view-body {
+      padding: 24px;
+      flex-grow: 1;
+      width: 100%;
+      max-width: 1560px;
+      margin: 0 auto;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- 後台 Toast 通知容器 -->
+  <div id="admin-toast-container"></div>
+
+  <!-- ==========================================
+       狀態 1：後台登入閘道視窗 (RBAC 獨立驗證)
+       ========================================== -->
+  <div id="admin-login-screen" style="position:fixed;inset:0;background:var(--bg-main);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;">
+    <div class="modal-card" style="max-width:480px;border-color:var(--border-subtle);box-shadow:0 20px 60px rgba(70,55,40,0.12);">
+      <div class="modal-header" style="text-align:center;display:block;background:var(--bg-subtle-warm);">
+        <img src="assets/images/329643847_635110431752576_2348159241106425372_n.jpg" style="width:64px;height:64px;border-radius:12px;border:2px solid var(--teal-primary);margin:0 auto 10px;box-shadow:0 4px 14px rgba(18,99,107,0.2);object-fit:cover;">
+        <h2 style="font-size:1.3rem;font-weight:900;color:var(--text-primary);">後台管理與產線審核系統</h2>
+        <div style="font-size:0.82rem;color:var(--teal-primary);margin-top:2px;font-weight:700;">智光商工職業學校 115 年度第六十二屆校慶圓遊會客製專案 (隱密閘道)</div>
+      </div>
+
+      <!-- 登入模式切換分頁 (雙軌登入：專員學號驗證碼 VS 管理者帳號密碼) -->
+      <div class="boutique-tab-nav" style="display:flex;background:var(--bg-subtle-warm);border-bottom:2px solid var(--border-subtle);padding:0 16px;">
+        <button id="admin-tab-btn-code" type="button" class="admin-login-tab-btn active" onclick="switchAdminLoginMode('code')" style="flex:1;text-align:center;padding:12px 8px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:3px solid var(--teal-primary);color:var(--teal-primary);">
+          ⚡ 專員快捷驗證碼登入
+        </button>
+        <button id="admin-tab-btn-password" type="button" class="admin-login-tab-btn" onclick="switchAdminLoginMode('password')" style="flex:1;text-align:center;padding:12px 8px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;color:var(--text-secondary);">
+          🔑 管理者帳號密碼登入
+        </button>
+      </div>
+
+      <!-- 面板 1：專員快捷驗證碼登入 (15職位下拉選單 + 專員學號驗證碼) -->
+      <div id="admin-panel-code-login">
+        <form id="form-admin-login-code" onsubmit="handleAdminLoginWithCode(event)">
+          <div class="modal-body" style="gap:16px;">
+            <div style="background:var(--teal-soft-bg);border:1px solid var(--teal-border);border-radius:var(--radius-md);padding:10px 14px;font-size:0.82rem;color:var(--teal-primary);line-height:1.5;">
+              ⚡ <strong>專員專屬驗證碼登入：</strong> 請於下方選取您的職位，並輸入專屬登入驗證碼即可快速驗證登入。
+            </div>
+
+            <div id="admin-code-login-error" class="login-error-banner" style="display:none;background:#fef2f2;border:1px solid #f87171;color:#dc2626;border-radius:30px;padding:8px 16px;font-size:0.85rem;font-weight:700;align-items:center;gap:8px;"></div>
+
+            <div class="form-group">
+              <label class="form-label" for="login-role-select" style="color:var(--teal-primary);font-weight:700;">
+                選取工作人員身分職位 <span style="color:red;">*</span>
+              </label>
+              <select id="login-role-select" class="form-select" style="border-color:var(--teal-primary);" required>
+                <option value="">-- 請選擇工作人員職位 --</option>
+                <option value="admin_director">總召 (主辦人) - 最高管理員 (Super Admin)</option>
+                <option value="admin_web_core">AI 網站組 (核心) - 系統開發員 (Developer)</option>
+                <option value="admin_web_staff">AI 網站組 (招募) - 系統開發員 (Developer)</option>
+                <option value="admin_art_core">美術視覺組 (核心) - 視覺審核員 (QC Reviewer)</option>
+                <option value="admin_art_staff">美術視覺組 (招募) - 視覺審核員 (QC Reviewer)</option>
+                <option value="admin_maker_core">商品製作組 (核心) - 產線管理員 (Production)</option>
+                <option value="admin_maker_staff">商品製作組 (招募) - 產線管理員 (Production)</option>
+                <option value="admin_finance_core">財務組 (核心) - 帳務管理員 (Finance)</option>
+                <option value="admin_finance_staff">財務組 (招募) - 帳務管理員 (Finance)</option>
+                <option value="staff_plan_A">企劃組 (人員A) - 行銷企劃 (Marketing)</option>
+                <option value="staff_plan_B">企劃組 (人員B) - 行銷企劃 (Marketing)</option>
+                <option value="staff_promo_A">宣傳組 (人員A) - 宣傳執行 (Promotion)</option>
+                <option value="staff_promo_B">宣傳組 (人員B) - 宣傳執行 (Promotion)</option>
+                <option value="staff_delivery_A">外送組 (人員A) - 物流專員 (Logistics)</option>
+                <option value="staff_delivery_B">外送組 (人員B) - 物流專員 (Logistics)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="login-auth-code">專員驗證碼 <span style="color:red;">*</span></label>
+              <input type="text" id="login-auth-code" class="form-input" placeholder="請輸入專員驗證碼" required>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">
+                💡 驗證碼可於後台【專員管理】中即時維護與更新。
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="justify-content:space-between;background:var(--bg-subtle-warm);">
+            <a href="store.html" class="btn btn-secondary btn-sm" style="text-decoration:none;">⬅ 前往前台商城</a>
+            <button type="submit" id="btn-admin-code-submit" class="btn btn-primary">
+              <span>⚡ 驗證碼登入後台</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 面板 2：管理者帳號密碼登入 (手動輸入帳號與預設密碼) -->
+      <div id="admin-panel-password-login" style="display:none;">
+        <form id="form-admin-login" onsubmit="handleAdminPasswordLoginSubmit(event)">
+          <div class="modal-body" style="gap:16px;">
+            <div style="background:var(--teal-soft-bg);border:1px solid var(--teal-border);border-radius:var(--radius-md);padding:10px 14px;font-size:0.82rem;color:var(--teal-primary);line-height:1.5;">
+              🔑 <strong>帳號密碼登入：</strong> 使用各職位專屬登入帳號與初始預設密碼登入系統。
+            </div>
+
+            <div id="admin-password-login-error" class="login-error-banner" style="display:none;background:#fef2f2;border:1px solid #f87171;color:#dc2626;border-radius:30px;padding:8px 16px;font-size:0.85rem;font-weight:700;align-items:center;gap:8px;"></div>
+
+            <div class="form-group">
+              <label class="form-label" for="admin-login-username">專屬登入帳號 (Username) <span style="color:red;">*</span></label>
+              <input type="text" id="admin-login-username" class="form-input" placeholder="例：admin_director 或 staff_plan_A" required autocomplete="username">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="admin-login-password">初始預設密碼 (Password) <span style="color:red;">*</span></label>
+              <input type="password" id="admin-login-password" class="form-input" placeholder="例：ZgShop@2026_01 或 ZgStaff@2026_10" required autocomplete="current-password">
+            </div>
+          </div>
+
+          <div class="modal-footer" style="justify-content:space-between;background:var(--bg-subtle-warm);">
+            <a href="store.html" class="btn btn-secondary btn-sm" style="text-decoration:none;">⬅ 前往前台商城</a>
+            <button type="submit" id="btn-admin-login-submit" class="btn btn-primary">
+              <span>🔑 密碼登入系統</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       狀態 2：後台主操作介面 (RBAC 核心系統)
+       ========================================== -->
+  <div id="admin-main-app" class="admin-layout" style="display:none;">
+    <!-- 左側側邊導覽欄 -->
+    <!-- 抽屜背景遮罩 (點擊關閉) -->
+    <div id="admin-drawer-backdrop" class="drawer-backdrop" onclick="closeAdminDrawer()"></div>
+
+    <!-- 左側滑出式抽屜選單 (☰ 點擊漢堡按鈕展開，切換功能全螢幕使用) -->
+    <aside id="admin-drawer" class="admin-drawer">
+      <div class="drawer-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <img src="assets/images/329643847_635110431752576_2348159241106425372_n.jpg" style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--teal-primary);object-fit:cover;">
+          <div>
+            <div style="font-weight:900;font-size:0.95rem;color:var(--text-primary);white-space:nowrap;">智光創客後台</div>
+            <div style="font-size:0.72rem;color:var(--teal-primary);font-weight:700;white-space:nowrap;">RBAC v2.6 MASTER</div>
+          </div>
+        </div>
+        <button type="button" onclick="closeAdminDrawer()" style="border:none;background:transparent;font-size:1.4rem;cursor:pointer;color:var(--text-muted);padding:4px;" title="收合選單">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <button id="tab-btn-dashboard" class="admin-tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+          <span>📊</span><span>營業管理 (營運總覽儀表板)</span>
+        </button>
+        <button id="tab-btn-qc" class="admin-tab-btn" data-tab="qc" onclick="switchTab('qc')">
+          <span>🎨</span><span>美術審核 (圖檔 QC 審核)</span>
+        </button>
+        <button id="tab-btn-finance" class="admin-tab-btn" data-tab="finance" onclick="switchTab('finance')">
+          <span>💰</span><span>財務帳務 (營收對帳與 A4 三聯單)</span>
+        </button>
+        <button id="tab-btn-delivery" class="admin-tab-btn" data-tab="delivery" onclick="switchTab('delivery')">
+          <span>🚚</span><span>班級外送 (班級配送與退件通知)</span>
+        </button>
+        <button id="tab-btn-production" class="admin-tab-btn" data-tab="production" onclick="switchTab('production')">
+          <span>🏭</span><span>產線製造 (印製對接看板)</span>
+        </button>
+        <button id="tab-btn-products" class="admin-tab-btn" data-tab="products" onclick="switchTab('products')">
+          <span>🛍️</span><span>商品管理 (名稱/資訊/圖片修改)</span>
+        </button>
+        <button id="tab-btn-auth-codes" class="admin-tab-btn" data-tab="auth_mgr" onclick="switchTab('auth_mgr')">
+          <span>🔑</span><span>專員管理 (各組專員名冊與驗證碼)</span>
+        </button>
+        <button id="tab-btn-security" class="admin-tab-btn" data-tab="security" onclick="switchTab('security')">
+          <span>🛡️</span><span>資安稽核 (系統日誌與防護保存)</span>
+        </button>
+        <button id="tab-btn-customizer" class="admin-tab-btn" data-tab="customizer" onclick="switchTab('customizer')">
+          <span>🎨</span><span>網站外觀與風格管理 (文字/顏色/動態)</span>
+        </button>
+
+        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border-subtle);display:flex;flex-direction:column;gap:6px;">
+          <a href="store.html" target="_blank" class="admin-tab-btn" style="text-decoration:none;color:var(--text-secondary);">
+            <span>🛍️</span><span>開啟前台顧客商城 ↗</span>
+          </a>
+          <button type="button" class="admin-tab-btn" onclick="openSystemLinksModal()">
+            <span>🌐</span><span>系統與網站連結總覽</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="drawer-footer">
+        <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">目前登入成員：</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+          <div>
+            <div id="admin-user-name" style="font-weight:800;font-size:0.9rem;color:var(--text-primary);white-space:nowrap;">總召 (主辦人)</div>
+            <div id="admin-dept-tag" style="font-size:0.72rem;color:var(--teal-primary);font-weight:600;white-space:nowrap;">大會核心指揮部</div>
+          </div>
+          <span id="admin-role-badge" class="role-badge">Super Admin</span>
+        </div>
+        <button id="btn-admin-logout" class="topbar-pill-btn pill-slate" style="margin-top:12px;width:100%;justify-content:center;">
+          <span>🚪 安全登出</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- 右側主內容顯示區 -->
+    <div class="admin-content-area">
+      <!-- 頂部資訊列 -->
+      <header class="admin-topbar">
+        <div class="topbar-left">
+          <!-- ☰ 三條線漢堡按鈕 -->
+          <button type="button" class="btn-hamburger" onclick="toggleAdminDrawer()" title="點擊展開/收合功能選單">
+            <span style="font-size:1.15rem;line-height:1;">☰</span>
+            <span>功能選單</span>
+          </button>
+          
+          <div class="admin-title-badge">
+            <span>智光商工職業學校 115 年度第六十二屆校慶圓遊會</span>
+          </div>
+          <span class="admin-safe-status">
+            <strong id="destruction-countdown-timer">🛡️ 籌備進行中 · 資料安全保存</strong>
+          </span>
+        </div>
+
+        <div class="topbar-right">
+          <!-- 鮮明色彩膠囊按鈕群 (非灰色、單行不折行、圖文清晰) -->
+          <a href="store.html" target="_blank" class="topbar-pill-btn pill-teal" title="以新分頁開啟前台顧客商城">
+            <span>🛍️</span><span>開啟商城 ↗</span>
+          </a>
+          <button type="button" class="topbar-pill-btn pill-indigo" onclick="openSystemLinksModal()" title="查看所有後台相關系統與網站連結">
+            <span>🌐</span><span>系統連結</span>
+          </button>
+          <button type="button" class="topbar-pill-btn pill-amber" onclick="switchTab('customizer')" title="修改全站文字、配色與特效">
+            <span>🎨</span><span>風格設定</span>
+          </button>
+          <button id="btn-clear-mock" type="button" class="topbar-pill-btn pill-rose" onclick="handleClearMockData()" title="移除預設示範訂單，僅保留真實顧客下單">
+            <span>🗑️</span><span>清除示範</span>
+          </button>
+          <button id="btn-reset-mock" type="button" class="topbar-pill-btn pill-emerald" onclick="handleResetMockData()" title="還原系統預設示範工單">
+            <span>🔄</span><span>還原示範</span>
+          </button>
+          <button id="btn-export-excel" type="button" class="topbar-pill-btn pill-sky" onclick="exportOrdersToExcel()" title="匯出包含超連結之 Excel 總表">
+            <span>📥</span><span>匯出 Excel</span>
+          </button>
+          <button id="btn-batch-print-a4" type="button" class="topbar-pill-btn pill-teal" onclick="batchPrintApprovedA4()" title="開啟 A4 三聯單批次套印精靈">
+            <span>🖨️</span><span>批次套印 A4</span>
+          </button>
+          <button id="btn-admin-logout-top" type="button" class="topbar-pill-btn pill-slate" onclick="handleAdminLogout()" title="登出後台管理系統">
+            <span>🚪</span><span>登出</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- 主要內容檢視體 (Tab Views) -->
+      <main class="admin-view-body">
+        
+        <!-- View 1: 營運總覽儀表板 (Dashboard) -->
+        <section id="view-dashboard" class="admin-tab-content active">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:16px;margin-bottom:24px;">
+            <div class="hero-stat-card">
+              <div class="hero-stat-label">已收現金總額</div>
+              <div id="stat-total-revenue" class="hero-stat-value">NT$ 0</div>
+            </div>
+            <div class="hero-stat-card">
+              <div class="hero-stat-label">待收現金餘額</div>
+              <div id="stat-pending-revenue" class="hero-stat-value" style="color:var(--warm-sand);">NT$ 0</div>
+            </div>
+            <div class="hero-stat-card">
+              <div class="hero-stat-label">總製造商品數</div>
+              <div id="stat-total-items" class="hero-stat-value" style="color:var(--text-primary);">0 件</div>
+            </div>
+            <div class="hero-stat-card">
+              <div class="hero-stat-label">待美術審核</div>
+              <div id="stat-qc-pending" class="hero-stat-value" style="color:var(--warm-sand-hover);">0 筆</div>
+            </div>
+            <div class="hero-stat-card">
+              <div class="hero-stat-label">審核通過 (印製中)</div>
+              <div id="stat-qc-approved" class="hero-stat-value" style="color:var(--sage-green);">0 筆</div>
+            </div>
+            <div class="hero-stat-card">
+              <div class="hero-stat-label">退件待補件</div>
+              <div id="stat-qc-rejected" class="hero-stat-value" style="color:var(--alert-crimson);">0 筆</div>
+            </div>
+          </div>
+
+          <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);">
+            <div style="padding:16px 20px;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;background:var(--bg-subtle-warm);">
+              <h3 style="font-size:1rem;font-weight:800;color:var(--text-primary);">全校即時訂單動態監控 (智慧拆單獨立流水工單)</h3>
+              <span style="font-size:0.78rem;color:var(--text-muted);">企劃與宣傳組查看時自動執行個資脫敏遮蔽</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>工單編號</th>
+                    <th>母單編號</th>
+                    <th>三聯流水號</th>
+                    <th>學生 / 班級座號姓名</th>
+                    <th>訂購品項</th>
+                    <th>應付總額</th>
+                    <th>美術審核</th>
+                    <th>產線狀態</th>
+                    <th>收款狀態</th>
+                    <th>外送配送</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-orders-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 2: 美術視覺組：圖檔 QC 審核工作台 (QC Reviewer) -->
+        <section id="view-qc" class="admin-tab-content">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div>
+              <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">美術視覺審查工作台 (QC 核心防線)</h3>
+              <p style="font-size:0.85rem;color:var(--text-secondary);">點擊縮圖檢視 1080P/300DPI 規格，確認轉印出血線與色彩模式，審核通過後自動啟動 3 天送單倒數</p>
+            </div>
+            <div>
+              <select id="qc-status-filter" class="form-select" onchange="renderQCView()">
+                <option value="all" selected>全部審核狀態 (包含所有工單)</option>
+                <option value="待審核">待審核 (優先處理)</option>
+                <option value="審核通過">審核通過</option>
+                <option value="退件">退件</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);">
+            <div style="overflow-x:auto;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>工單編號</th>
+                    <th>印製原圖</th>
+                    <th>品項 / 上傳解析度</th>
+                    <th>顧客特殊備註</th>
+                    <th>審核反饋備註</th>
+                    <th>目前狀態</th>
+                    <th>審核操作</th>
+                  </tr>
+                </thead>
+                <tbody id="qc-orders-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 3: 商品製作組：產線印製對接看板 (Production) -->
+        <section id="view-production" class="admin-tab-content">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div>
+              <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">產線熱昇華/UV印製作業看板 (機台專用)</h3>
+              <p style="font-size:0.85rem;color:var(--text-secondary);">按商品分類分流作業，點擊圖檔直達原圖，支持下載 PNG/JPG 直接對接熱壓烤杯機與直噴機台</p>
+            </div>
+            <div>
+              <select id="prod-filter-cat" class="form-select" onchange="renderProductionView()">
+                <option value="all">全產品線 (全部)</option>
+                <option value="MUG">陶瓷馬克杯產線</option>
+                <option value="CST">吸水杯墊產線</option>
+                <option value="BDG">金屬胸章產線</option>
+                <option value="CRD">悠遊卡套產線</option>
+                <option value="PSP">客製護照套產線</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="production-board-cards" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(360px, 1fr));gap:16px;">
+            <!-- 動態渲染產線工作卡片 -->
+          </div>
+        </section>
+
+        <!-- View 4: 財務組：帳務核銷與 A4 雙聯單 (Finance) -->
+        <section id="view-finance" class="admin-tab-content">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div>
+              <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">財務帳務出納與三聯單核銷專區</h3>
+              <p style="font-size:0.85rem;color:var(--text-secondary);">可單獨或批次套印標準 A4 三聯確認單 (上聯顧客取貨、中聯行政留存、下聯財務存查，含撕線點線)，及時核銷腰包現金</p>
+            </div>
+          </div>
+
+          <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);">
+            <div style="overflow-x:auto;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>工單編號</th>
+                    <th>三聯流水號</th>
+                    <th>學號 (PK)</th>
+                    <th>班級座號姓名</th>
+                    <th>訂購品項</th>
+                    <th>應收金額</th>
+                    <th>現金收款切換</th>
+                    <th>是否列印三聯單</th>
+                    <th>A4 三聯單套印</th>
+                  </tr>
+                </thead>
+                <tbody id="finance-orders-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 5: 外送物流組：班級配送與第4天退件單 (Logistics) -->
+        <section id="view-delivery" class="admin-tab-content">
+          <div style="margin-bottom:20px;">
+            <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">外送物流班級配送管理</h3>
+            <p style="font-size:0.85rem;color:var(--text-secondary);">外送專員僅能檢視班級座號與姓名，全校性電話與個資總表嚴密隔離防止外洩</p>
+          </div>
+
+          <!-- 第 4 天退件防漏接專區 -->
+          <div style="margin-bottom:24px;">
+            <h4 style="font-size:0.95rem;font-weight:800;color:var(--alert-crimson);margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+              <span>🚨</span>
+              <span>第 4 天未更換圖檔之退件專案清單 (外送組實體到班送單)</span>
+            </h4>
+            <div id="delivery-return-watchlist">
+              <!-- 動態載入逾期退件 -->
+            </div>
+          </div>
+
+          <!-- 班級送貨排程表格 -->
+          <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);">
+            <div style="padding:14px 20px;border-bottom:1px solid var(--border-subtle);background:var(--bg-subtle-warm);">
+              <h4 style="font-size:0.95rem;font-weight:800;color:var(--text-primary);">全校班級外送簽收總表</h4>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>工單編號</th>
+                    <th>目的班級</th>
+                    <th>座號</th>
+                    <th>學生姓名</th>
+                    <th>品項數量</th>
+                    <th>配送狀態</th>
+                    <th>狀態變更</th>
+                  </tr>
+                </thead>
+                <tbody id="delivery-orders-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View: 商品管理與庫存編輯 (Products Management) -->
+        <section id="view-products" class="admin-tab-content">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+            <div>
+              <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">客製化商品管理與品項維護</h3>
+              <p style="font-size:0.85rem;color:var(--text-secondary);">可即時新增商品、修改商品名稱、尺寸規格、說明介紹、商品圖片連結以及切換庫存現貨/補貨狀態</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openAddProductModal()" style="background:linear-gradient(135deg, #12636b, #0e4f55);">
+              <span>➕ 新增商品品項</span>
+            </button>
+          </div>
+
+          <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);">
+            <div style="overflow-x:auto;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width:70px;">商品圖片</th>
+                    <th style="width:80px;">商品代碼</th>
+                    <th>商品名稱 / 規格</th>
+                    <th>分類系列</th>
+                    <th>單價</th>
+                    <th>庫存現況</th>
+                    <th>切換庫存狀態</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-products-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View: 專員學號 (登入驗證碼管理矩陣) -->
+        <section id="view-auth_mgr" class="admin-tab-content">
+          <div style="margin-bottom:20px;">
+            <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">各組專員學號 (登入驗證碼) 管理中心</h3>
+            <p style="font-size:0.85rem;color:var(--text-secondary);">
+              大會已將登入驗證碼設定為「各組專員學號」。目前成員名單尚未完全確定，各職位已預載對應帳號，總召或負責人可於此處直接鍵入並儲存專員學號，儲存後即時生效！
+            </p>
+          </div>
+
+          <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);">
+            <div style="overflow-x:auto;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>登入帳號</th>
+                    <th>專員職位</th>
+                    <th>負責組別</th>
+                    <th>專員學號 (登入驗證碼)</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-auth-codes-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 6: 資安日誌與 14 天到期全量物理銷毀 (Security & Data Wipe) -->
+        <section id="view-security" class="admin-tab-content">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+            <div>
+              <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">大會資安稽核矩陣與個資銷毀防線</h3>
+              <p style="font-size:0.85rem;color:var(--text-secondary);">資安防護規範：活動籌備與進行期間全程安全保存；於活動圓滿閉幕日（校慶日期尚未定案）後起算保留 14 天供財務對帳與補印三聯單，結案閉幕前所有下單資料皆受永久完整保護，絕不提前銷毀</p>
+            </div>
+            <button id="btn-emergency-wipe" class="btn btn-danger">
+              <span>⚠️ 閉幕 14 天到期個資物理抹除 (安全防護中)</span>
+            </button>
+          </div>
+
+          <div style="background:var(--alert-soft);border:1.5px solid rgba(201,59,59,0.3);border-radius:var(--radius-md);padding:16px;margin-bottom:20px;color:var(--alert-crimson);font-size:0.85rem;line-height:1.7;">
+            <strong>🚨 資安最高指導原則宣告：</strong><br>
+            1. 全團隊 15 位成員帳號權限已完成隔離，非授權人員無權存取全校原始個資總表。<br>
+            2. 本系統資料庫具備不可逆之全量抹除指令，點擊上方按鈕將物理銷毀所有學生真實姓名、學號、電話及所有歷史訂單，杜絕校園個資外洩風險。
+          </div>
+
+          <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px;box-shadow:var(--shadow-sm);">
+            <h4 style="font-size:0.95rem;font-weight:800;color:var(--text-primary);margin-bottom:12px;">系統資安作業稽核日誌 (Audit Trail)</h4>
+            <div id="security-audit-logs-box" style="max-height:400px;overflow-y:auto;background:var(--bg-subtle-warm);padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
+              <!-- 動態載入日誌 -->
+            </div>
+          </div>
+        </section>
+
+      
+        <!-- View 9: 網站外觀與風格管理 (Site Customizer) -->
+        <section id="view-customizer" class="admin-tab-content">
+          <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:24px;">
+            <div style="padding:18px 24px;border-bottom:1px solid var(--border-subtle);background:var(--bg-subtle-warm);display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);margin:0;">🎨 網站外觀與風格管理 (全站文字 / 主題配色 / 動態特效)</h3>
+                <p style="margin:4px 0 0;font-size:0.8rem;color:var(--text-secondary);">管理者可在此直接客製化修改前台與後台的文字標題、品牌色彩以及視覺特效，儲存後立即全站生效！</p>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" onclick="handleSaveSiteSettings(event)" style="padding:8px 20px;font-size:0.88rem;">
+                <span>💾 儲存並即時套用全站</span>
+              </button>
+            </div>
+
+            <form id="form-site-customizer" onsubmit="handleSaveSiteSettings(event)" style="padding:24px;display:flex;flex-direction:column;gap:24px;">
+              
+              <!-- 區塊 1：全站文字設定 -->
+              <div style="background:#fdfcf9;border:1px solid var(--border-subtle);border-radius:12px;padding:20px;">
+                <h4 style="font-size:0.95rem;font-weight:800;color:var(--teal-primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                  <span>📝</span><span>全站文字與品牌標語設定</span>
+                </h4>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;">
+                  <div class="form-group">
+                    <label class="form-label" for="setting-site-title">大會官方主標題 (Site Title)</label>
+                    <input type="text" id="setting-site-title" class="form-input" placeholder="智光商工 115學年度 第62屆校慶園遊會">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="setting-store-brand">商城品牌名稱 (Store Brand)</label>
+                    <input type="text" id="setting-store-brand" class="form-input" placeholder="智光創客商城">
+                  </div>
+                </div>
+                <div class="form-group" style="margin-top:14px;">
+                  <label class="form-label" for="setting-banner-slogan">首頁促銷標語 (Banner Slogan)</label>
+                  <input type="text" id="setting-banner-slogan" class="form-input" placeholder="✨ 2026 可愛精品亮晶晶 · 青春限定印製">
+                </div>
+                <div class="form-group" style="margin-top:14px;">
+                  <label class="form-label" for="setting-marquee-notice">頂部公告跑馬燈文字 (Marquee Notice)</label>
+                  <textarea id="setting-marquee-notice" class="form-textarea" rows="2" placeholder="📢 校慶客製化商品全面開放線上預訂！圖檔自動驗證 1080P，滿額直送班級教室。"></textarea>
+                </div>
+              </div>
+
+              <!-- 區塊 2：主題色彩設定 -->
+              <div style="background:#fdfcf9;border:1px solid var(--border-subtle);border-radius:12px;padding:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+                  <h4 style="font-size:0.95rem;font-weight:800;color:var(--teal-primary);margin:0;display:flex;align-items:center;gap:8px;">
+                    <span>🎨</span><span>主題配色方案 (顏色自訂與一鍵色票套用)</span>
+                  </h4>
+                  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <span style="font-size:0.75rem;color:var(--text-muted);font-weight:700;">快速套用色票：</span>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="handlePresetPalette('teal')" style="padding:4px 10px;font-size:0.75rem;">🌿 經典藍綠</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="handlePresetPalette('pink')" style="padding:4px 10px;font-size:0.75rem;">🌸 浪漫櫻粉</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="handlePresetPalette('blue')" style="padding:4px 10px;font-size:0.75rem;">🌌 科技深藍</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="handlePresetPalette('gold')" style="padding:4px 10px;font-size:0.75rem;">🍊 活力暖橙</button>
+                  </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;">
+                  <div class="form-group">
+                    <label class="form-label" for="setting-color-primary">系統主色 (Primary Color)</label>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <input type="color" id="setting-color-primary" value="#12636b" style="width:48px;height:40px;border-radius:8px;border:1px solid var(--border-subtle);cursor:pointer;">
+                      <span style="font-size:0.8rem;color:var(--text-secondary);font-family:monospace;">主要按鈕與標題色</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="setting-color-accent">強調副色 (Accent Color)</label>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <input type="color" id="setting-color-accent" value="#ff6584" style="width:48px;height:40px;border-radius:8px;border:1px solid var(--border-subtle);cursor:pointer;">
+                      <span style="font-size:0.8rem;color:var(--text-secondary);font-family:monospace;">徽章與促銷強調色</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="setting-color-bg">頁面背景底色 (Background)</label>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <input type="color" id="setting-color-bg" value="#fbf9f5" style="width:48px;height:40px;border-radius:8px;border:1px solid var(--border-subtle);cursor:pointer;">
+                      <span style="font-size:0.8rem;color:var(--text-secondary);font-family:monospace;">全站整體暖調底色</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="setting-color-text">主要文字色 (Text Color)</label>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <input type="color" id="setting-color-text" value="#1b2e35" style="width:48px;height:40px;border-radius:8px;border:1px solid var(--border-subtle);cursor:pointer;">
+                      <span style="font-size:0.8rem;color:var(--text-secondary);font-family:monospace;">高對比內文顏色</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 區塊 3：動態效果設定 -->
+              <div style="background:#fdfcf9;border:1px solid var(--border-subtle);border-radius:12px;padding:20px;">
+                <h4 style="font-size:0.95rem;font-weight:800;color:var(--teal-primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                  <span>✨</span><span>視覺特效與動態設定</span>
+                </h4>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px;">
+                  <div style="display:flex;align-items:center;gap:12px;background:#ffffff;padding:12px 16px;border-radius:8px;border:1px solid var(--border-subtle);">
+                    <input type="checkbox" id="setting-enable-blur" checked style="width:20px;height:20px;cursor:pointer;">
+                    <div>
+                      <strong style="font-size:0.88rem;color:var(--text-primary);display:block;">毛玻璃背景模糊濾鏡 (Backdrop Blur)</strong>
+                      <span style="font-size:0.75rem;color:var(--text-muted);">頂部與彈窗浮層具備磨砂玻璃高級通透質感</span>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;background:#ffffff;padding:12px 16px;border-radius:8px;border:1px solid var(--border-subtle);">
+                    <input type="checkbox" id="setting-enable-motion" checked style="width:20px;height:20px;cursor:pointer;">
+                    <div>
+                      <strong style="font-size:0.88rem;color:var(--text-primary);display:block;">按鈕微互動彈跳 (Micro-Motion)</strong>
+                      <span style="font-size:0.75rem;color:var(--text-muted);">滑鼠移入按鈕與卡片時具備彈簧縮放過渡</span>
+                    </div>
+                  </div>
+                  <div class="form-group" style="background:#ffffff;padding:12px 16px;border-radius:8px;border:1px solid var(--border-subtle);margin:0;">
+                    <label class="form-label" for="setting-marquee-speed" style="margin-bottom:6px;">跑馬燈公告滾動速度</label>
+                    <select id="setting-marquee-speed" class="form-select" style="padding:6px 12px;font-size:0.85rem;">
+                      <option value="slow">慢速 (45 秒完整循環，適合長篇公告)</option>
+                      <option value="normal" selected>標準速度 (25 秒循環)</option>
+                      <option value="fast">快速 (12 秒循環)</option>
+                      <option value="stop">靜態展示 (停止跑馬燈動畫)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 儲存操作區 -->
+              <div style="display:flex;justify-content:flex-end;gap:12px;padding-top:10px;">
+                <button type="submit" class="btn btn-primary" style="padding:10px 28px;font-size:0.95rem;">
+                  <span>💾 儲存並即時套用全站</span>
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- 模態視窗：美術視覺組原圖檢視與審核決策視窗 (QC Inspection Modal) -->
+  <div id="modal-qc-inspect" class="modal-overlay">
+    <div class="modal-card modal-card-lg">
+      <div class="modal-header">
+        <h3 class="modal-title">美術視覺審查 (QC Inspector)</h3>
+        <button class="drawer-close-btn admin-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:20px;">
+          <!-- 圖片預覽區 -->
+          <div style="background:#f7f4ed;border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px;text-align:center;">
+            <img id="qc-inspect-img" src="" alt="原圖預覽" style="max-width:100%;max-height:360px;object-fit:contain;border-radius:4px;">
+            <div style="margin-top:12px;">
+              <a id="qc-open-original-tab" href="" target="_blank" class="btn btn-secondary btn-sm">
+                <span>在新分頁檢視 100% 原始尺寸原圖 ↗</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 審核資訊與決策表單 -->
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="background:var(--bg-subtle-warm);padding:14px;border-radius:var(--radius-sm);font-size:0.85rem;border:1px solid var(--border-subtle);">
+              <div><strong>工單編號：</strong> <span id="qc-inspect-order-id" style="color:var(--teal-primary);font-family:monospace;font-weight:800;"></span></div>
+              <div style="margin-top:4px;"><strong>商品規格：</strong> <span id="qc-inspect-prod-name"></span></div>
+              <div style="margin-top:4px;"><strong>訂購學生：</strong> <span id="qc-inspect-student"></span></div>
+              <div style="margin-top:4px;"><strong>解析度偵測：</strong> <span id="qc-inspect-res" style="color:var(--sage-green);font-weight:700;"></span></div>
+              <div style="margin-top:4px;"><strong>顧客備註：</strong> <span id="qc-inspect-notes" class="single-line" style="color:var(--warm-sand-hover);"></span></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="qc-inspect-note-input">
+                審核備註與反饋說明 <span style="font-size:0.75rem;color:var(--text-muted);">(若退件請強制填寫具體改善原因)</span>
+              </label>
+              <textarea id="qc-inspect-note-input" class="form-textarea" rows="3" placeholder="例：圖檔尺寸合格，符合 300DPI 轉印標準。或：原圖僅 640x480，文字邊緣鋸齒嚴重，請更換 1080P 圖檔。"></textarea>
+            </div>
+
+            <div id="qc-inspect-action-buttons" style="display:flex;gap:10px;margin-top:auto;">
+              <button class="btn btn-danger" style="flex:1;" onclick="submitQCDecision('退件')">
+                <span>✕ 退件 (通知學生重傳)</span>
+              </button>
+              <button class="btn btn-primary" style="flex:1.4;" onclick="submitQCDecision('審核通過')">
+                <span>✓ 審核通過 (准予印製)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary admin-modal-close">關閉視窗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- A4 三聯確認單即時預覽視窗 (螢幕檢視與單張列印防呆) -->
+  <div id="modal-slip-preview" class="modal-overlay">
+    <div class="modal-card modal-card-lg" style="max-width:860px;max-height:92vh;">
+      <div class="modal-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.3rem;">🖨️</span>
+          <div>
+            <h3 class="modal-title" style="font-size:1.1rem;">A4 三聯確認單即時檢視與列印</h3>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">請核對上聯(顧客取貨/防偽章)、中聯(派送留存)、下聯(財務存查)資料與金額，確認無誤後點擊列印</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeSlipPreviewModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding:16px 20px;background:#f3f4f6;">
+        <div id="slip-preview-render-target" class="slip-screen-preview-wrapper" style="background:#fff;padding:24px;border-radius:8px;border:1px solid #d1d5db;box-shadow:0 4px 12px rgba(0,0,0,0.06);max-height:65vh;overflow-y:auto;">
+          <!-- 動態載入該筆訂單真實三聯單內容 -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="background:#ffffff;">
+        <span id="slip-preview-info-tag" style="font-size:0.85rem;color:var(--text-muted);margin-right:auto;"></span>
+        <button class="btn btn-secondary" onclick="closeSlipPreviewModal()">✕ 關閉視窗</button>
+        <button id="btn-confirm-print-single" class="btn btn-primary" onclick="confirmPrintCurrentPreview()">
+          <span>🖨️ 送往印表機列印此單 (A4 三聯標準格式)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 批次套印 A4 三聯單精靈視窗 -->
+  <div id="modal-batch-slip" class="modal-overlay">
+    <div class="modal-card modal-card-lg" style="max-width:900px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">🖨️ 批次套印 A4 三聯單精靈</h3>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">請勾選欲列印之「審核通過」工單，避免重複列印或誤印舊資料：</p>
+        </div>
+        <button class="modal-close-btn" onclick="closeBatchSlipModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding:18px 24px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="setBatchSelectAll(true)">✓ 全選</button>
+            <button class="btn btn-secondary btn-sm" onclick="setBatchSelectAll(false)">✕ 取消全選</button>
+            <button class="btn btn-secondary btn-sm" onclick="setBatchSelectRealOnly()">★ 僅選真實客戶訂單</button>
+          </div>
+          <span style="font-size:0.85rem;color:var(--teal-primary);font-weight:700;">
+            已選取 <span id="batch-selected-count">0</span> / <span id="batch-total-count">0</span> 張工單
+          </span>
+        </div>
+
+        <div style="max-height:380px;overflow-y:auto;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);">
+          <table class="admin-table" style="font-size:0.85rem;">
+            <thead>
+              <tr>
+                <th style="width:40px;text-align:center;"><input type="checkbox" id="batch-check-all-top" onchange="setBatchSelectAll(this.checked)"></th>
+                <th>工單編號</th>
+                <th>三聯流水號</th>
+                <th>學號</th>
+                <th>姓名班級</th>
+                <th>商品名稱</th>
+                <th>金額</th>
+                <th>收款</th>
+                <th>列印狀態</th>
+                <th>單獨預覽</th>
+              </tr>
+            </thead>
+            <tbody id="batch-slip-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeBatchSlipModal()">✕ 取消</button>
+        <button id="btn-batch-execute-print" class="btn btn-primary" onclick="executeBatchPrintSelected()">
+          <span>🖨️ 開始批次列印勾選單據</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模態視窗：商品編輯與新增 (Product Edit / Add Modal) -->
+  <div id="modal-product-edit" class="modal-overlay">
+    <div class="modal-card" style="max-width:640px;">
+      <div class="modal-header">
+        <h3 id="prod-edit-modal-title" class="modal-title">✏️ 編輯商品資訊</h3>
+        <button class="modal-close-btn" onclick="closeProductEditModal()">✕</button>
+      </div>
+      <form id="form-product-edit" onsubmit="handleSaveProductEdit(event)">
+        <div class="modal-body" style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;max-height:75vh;overflow-y:auto;">
+          <input type="hidden" id="edit-prod-id">
+
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label" for="edit-prod-name">商品名稱 <span style="color:red;">*</span></label>
+              <input type="text" id="edit-prod-name" class="form-input" placeholder="例如：經典陶瓷馬克杯" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-prod-code">商品代碼 (工單字尾) <span style="color:red;">*</span></label>
+              <input type="text" id="edit-prod-code" class="form-input" placeholder="例如：MUG" required>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label" for="edit-prod-category">分類系列</label>
+              <select id="edit-prod-category" class="form-select">
+                <option value="陶瓷工藝">☕ 陶瓷工藝</option>
+                <option value="金屬紀念品">🏅 金屬紀念品</option>
+                <option value="皮革配件">👜 皮革配件</option>
+                <option value="文創紀念品">🎨 文創紀念品</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-prod-price">單價 (NT$) <span style="color:red;">*</span></label>
+              <input type="number" id="edit-prod-price" class="form-input" min="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-prod-stock">庫存狀態</label>
+              <select id="edit-prod-stock" class="form-select">
+                <option value="in_stock">🟢 現貨供應中</option>
+                <option value="restocking">🟡 補貨排單中</option>
+                <option value="out_of_stock">🔴 暫時缺貨 (已搶光)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-prod-image">商品圖片網址 / 本機圖片檔案上傳</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" id="edit-prod-image" class="form-input" placeholder="例如：assets/images/mug.jpg 或 https://..." style="flex:1;">
+              <label class="btn btn-secondary btn-sm" style="margin:0;cursor:pointer;white-space:nowrap;padding:8px 14px;">
+                📁 選擇圖片
+                <input type="file" id="edit-prod-file-input" accept="image/*" style="display:none;" onchange="handleProductImageFileUpload(event)">
+              </label>
+            </div>
+            <div id="edit-prod-img-preview-box" style="margin-top:8px;display:flex;align-items:center;gap:10px;">
+              <img id="edit-prod-img-preview" src="" style="width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid var(--border-subtle);display:none;">
+              <span id="edit-prod-img-tip" style="font-size:0.75rem;color:var(--text-muted);">支援 JPG/PNG/WebP 圖檔，選取後可即時預覽並自動寫入</span>
+            </div>
+          </div>
+
+
+          <div class="form-group">
+            <label class="form-label" for="edit-prod-specs">規格與尺寸說明</label>
+            <input type="text" id="edit-prod-specs" class="form-input" placeholder="例如：容量 320ml (11oz) / 轉印範圍 20cm × 8.5cm">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-prod-desc">商品詳細介紹</label>
+            <textarea id="edit-prod-desc" class="form-textarea" rows="3" placeholder="請填寫商品的工藝特色、材料與介紹..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeProductEditModal()">✕ 取消</button>
+          <button type="submit" class="btn btn-primary">
+            <span>💾 儲存商品設定</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       系統與網站連結一覽彈跳視窗 (System & Web Links Modal)
+       ========================================== -->
+  <div id="modal-system-links" class="modal-overlay" style="display:none;align-items:center;justify-content:center;z-index:9999;position:fixed;inset:0;background:rgba(27,46,53,0.5);backdrop-filter:blur(4px);padding:16px;">
+    <div class="modal-card" style="max-width:720px;width:100%;background:#ffffff;border-radius:16px;box-shadow:0 24px 60px rgba(18,99,107,0.22);overflow:hidden;border:1px solid var(--border-subtle);display:flex;flex-direction:column;max-height:90vh;">
+      <div class="modal-header" style="background:var(--bg-subtle-warm);padding:18px 24px;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:1.6rem;">🌐</span>
+          <div>
+            <h3 style="margin:0;font-size:1.15rem;font-weight:900;color:var(--text-primary);">智光創客 系統與網站連結總覽</h3>
+            <div style="font-size:0.78rem;color:var(--teal-primary);font-weight:700;">後台網站 · 前台商城 · Supabase 雲端 · Python API</div>
+          </div>
+        </div>
+        <button type="button" onclick="closeSystemLinksModal()" style="border:none;background:transparent;font-size:1.6rem;cursor:pointer;color:var(--text-muted);line-height:1;" title="關閉">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;">
+        
+        <!-- 連結 1: 前台商城 -->
+        <div style="background:#fdfcf9;border:1px solid var(--border-subtle);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:1.2rem;">🛍️</span>
+              <strong style="color:var(--text-primary);font-size:0.95rem;">前台顧客客製商城</strong>
+              <span class="role-badge">公開前端</span>
+            </div>
+            <p style="margin:4px 0 0;font-size:0.82rem;color:var(--text-secondary);line-height:1.4;">
+              提供全校師生選購客製馬克杯、胸章、杯墊、皮革卡套，支援 1080P 圖檔預覽與線上即時下單。
+            </p>
+            <div style="margin-top:6px;">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+              <code style="font-size:0.75rem;color:var(--teal-primary);background:var(--teal-soft-bg);padding:3px 8px;border-radius:4px;border:1px solid var(--teal-border);">後台目錄內商城: ./store.html</code>
+              <code style="font-size:0.75rem;color:var(--text-muted);background:var(--bg-subtle-warm);padding:3px 8px;border-radius:4px;border:1px solid var(--border-subtle);">根目錄商城: ../index.html</code>
+            </div>
+            </div>
+          </div>
+          <a href="store.html" target="_blank" class="btn btn-primary btn-sm" style="text-decoration:none;white-space:nowrap;padding:8px 16px;">開啟前台 ↗</a>
+        </div>
+
+        <!-- 連結 2: 本機後台管理主頁 -->
+        <div style="background:#fdfcf9;border:1px solid var(--border-subtle);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:1.2rem;">⚙️</span>
+              <strong style="color:var(--text-primary);font-size:0.95rem;">後台管理與產線審核系統 (本頁)</strong>
+              <span class="role-badge">RBAC 後端</span>
+            </div>
+            <p style="margin:4px 0 0;font-size:0.82rem;color:var(--text-secondary);line-height:1.4;">
+              涵蓋 7 大核心面板：營業管理、美術審核、財務帳務、班級外送、產線製造、專員管理、資安稽核。
+            </p>
+            <div style="margin-top:6px;">
+              <code style="font-size:0.75rem;color:var(--teal-primary);background:var(--teal-soft-bg);padding:3px 8px;border-radius:4px;border:1px solid var(--teal-border);">目前位置: ./index.html | 所在目錄: /index/</code>
+            </div>
+          </div>
+          <a href="./index.html" class="btn btn-secondary btn-sm" style="text-decoration:none;white-space:nowrap;padding:8px 16px;">本頁重整 ↺</a>
+        </div>
+
+        <!-- 連結 3: Supabase 雲端資料庫主控台 -->
+        <div style="background:#fdfcf9;border:1px solid var(--border-subtle);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:1.2rem;">☁️</span>
+              <strong style="color:var(--text-primary);font-size:0.95rem;">Supabase 雲端資料庫 Console</strong>
+              <span class="role-badge" style="background:#ecfdf5;color:#059669;border-color:#a7f3d0;">即時同步 Cloud</span>
+            </div>
+            <p style="margin:4px 0 0;font-size:0.82rem;color:var(--text-secondary);line-height:1.4;">
+              專案代碼: <code>pdycpmbvjmhxabnzzdld</code>。管理雲端 orders、products、students 與即時 WebSocket 廣播。
+            </p>
+            <div style="margin-top:6px;">
+              <code style="font-size:0.75rem;color:var(--teal-primary);background:var(--teal-soft-bg);padding:3px 8px;border-radius:4px;border:1px solid var(--teal-border);">https://supabase.com/dashboard/project/pdycpmbvjmhxabnzzdld</code>
+            </div>
+          </div>
+          <a href="https://supabase.com/dashboard/project/pdycpmbvjmhxabnzzdld" target="_blank" rel="noopener noreferrer" class="btn btn-cyan btn-sm" style="text-decoration:none;white-space:nowrap;padding:8px 16px;">開啟雲端主控台 ↗</a>
+        </div>
+
+        <!-- 連結 4: 本機 Python 同步 API -->
+        <div style="background:#fdfcf9;border:1px solid var(--border-subtle);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:1.2rem;">📡</span>
+              <strong style="color:var(--text-primary);font-size:0.95rem;">本機 Python API 資料庫端點</strong>
+              <span class="role-badge">Local JSON API</span>
+            </div>
+            <p style="margin:4px 0 0;font-size:0.82rem;color:var(--text-secondary);line-height:1.4;">
+              由 <code>index/server.py</code> 提供，支援本機與區網快照檢視、雙向資料合併及斷網容錯備份。
+            </p>
+            <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:8px;font-size:0.75rem;">
+              <a href="/api/db" target="_blank" style="color:var(--teal-primary);text-decoration:underline;">/api/db (資料庫快照)</a>
+              <span style="color:var(--text-muted);">|</span>
+              <span style="color:var(--text-secondary);">/api/sync (跨裝置同步)</span>
+              <span style="color:var(--text-muted);">|</span>
+              <span style="color:var(--text-secondary);">/api/orders/update (工單更新)</span>
+            </div>
+          </div>
+          <a href="/api/db" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;white-space:nowrap;padding:8px 16px;">檢視 API ↗</a>
+        </div>
+
+        <!-- 連結 5: 區網手機連線指南 -->
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px;font-size:0.82rem;color:#166534;line-height:1.6;">
+          📱 <strong>手機/平板 區網同步連線說明：</strong><br>
+          當後台伺服器啟動於電腦上，若手機連接相同 Wi-Fi，可於手機瀏覽器輸入電腦區域網路 IP（例如 <code>http://192.168.X.X:8080/index/</code>）即可直接手機隨身即時審單！
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="background:var(--bg-subtle-warm);padding:14px 24px;display:flex;justify-content:flex-end;">
+        <button type="button" class="btn btn-secondary" onclick="closeSystemLinksModal()">關閉視窗</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openSystemLinksModal() {
+      const modal = document.getElementById('modal-system-links');
+      if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+      }
+    }
+    function closeSystemLinksModal() {
+      const modal = document.getElementById('modal-system-links');
+      if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+      }
+    }
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeSystemLinksModal();
+        if (typeof closeAdminDrawer === 'function') closeAdminDrawer();
+      }
+    });
+  </script>
+
+  <!-- 列印專用容器 1：A4 雙聯確認單 (上聯顧客憑證，下聯財務存根) -->
+  <div id="print-double-slip-container"></div>
+
+  <!-- 列印專用容器 2：外送組第4天圖檔退件到班實體通知單 -->
+  <div id="print-return-notice-container"></div>
+
+  <!-- 外部依賴函式庫 (SheetJS for Excel HYPERLINK) -->
+  <script src="assets/vendor/xlsx.full.min.js"></script>
+
+  <!-- 核心資料與管理邏輯 -->
+  <script src="js/data.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
