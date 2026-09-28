@@ -1,88 +1,90 @@
 /* ==========================================================================
-   智光商工 115學年度 第62屆校慶園遊會 - 客製化商品旗艦商城 (ZG Boutique Lab)
-   美學規範：✨ 可愛好看精品亮晶晶 × 珠光流金粉 × 幻彩晨曦紫 × 晶透玻璃 (Liquid Crystal)
+   智光商工 115學年度 第62屆校慶園遊會 - 客製化商品旗艦商城 (ZG Apple/iOS Boutique)
+   美學規範：📱 Apple / iOS 旗艦規格 × 液態玻璃 (Liquid Glass) × 30px 全膠囊圓角 × 物理彈簧動效
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap');
 
 :root {
   /* ==========================================================================
-     ✨ 可愛好看精品亮晶晶調色盤 (Kawaii Sparkling Boutique Palette)
+     📱 Apple iOS 60-30-10 極致質感調色盤 (iOS Liquid Glass System)
      ========================================================================== */
   
-  /* 珠光基底：晨曦珠光暖白，帶有極細微的玫瑰香檳粉光暈 */
-  --bg-main: #fff8f8;
+  /* 60% 畫布基底：Apple 招牌銀灰柔和基底與晶透純白 */
+  --bg-main: #f5f5f7;
   --bg-surface: #ffffff;
-  --bg-surface-translucent: rgba(255, 255, 255, 0.92);
-  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-surface-translucent: rgba(255, 255, 255, 0.85);
+  --bg-card: rgba(255, 255, 255, 0.9);
   --bg-card-hover: #ffffff;
-  --bg-elevated: #fff0f5;
-  --bg-subtle-warm: #fff5f7;
+  --bg-elevated: #ffffff;
+  --bg-subtle-warm: #fbfbfd;
+  --bg-glass: rgba(255, 255, 255, 0.78);
 
-  /* 主題色系：晶燦玫瑰粉 (Glitter Rose) × 晨曦幻彩紫 (Aurora) × 香檳流金 (Champagne Sparkle) */
-  --glitter-pink: #ff6584;
-  --glitter-rose: #ff758c;
-  --glitter-gold: #f59e0b;
-  --glitter-champagne: #ffd166;
-  --glitter-aurora: #a855f7;
-  --glitter-sky: #38bdf8;
-  
-  /* 保留優雅調和色：高級綠與大地金 */
-  --teal-primary: #e11d48; /* 亮麗精品石榴紅粉 */
-  --teal-hover: #be123c;
-  --teal-light: #fb7185;
-  --teal-soft-bg: rgba(255, 101, 132, 0.08);
-  --teal-border: rgba(255, 101, 132, 0.28);
+  /* 30% 結構色與 10% Apple 強調色：經典 Apple 藍 (Primary) × 極致曜石黑 (Graphite) × 活力翠綠 (Emerald) */
+  --apple-blue: #0071e3;
+  --apple-blue-hover: #0077ed;
+  --apple-dark: #1d1d1f;
+  --apple-gray: #86868b;
+  --apple-light-gray: #e8e8ed;
 
-  --warm-sand: #d97706; /* 香檳琥珀金 */
-  --warm-sand-hover: #b45309;
+  /* 映射現有變數以保持向下相容相容性 */
+  --teal-primary: #0071e3; /* Apple 旗艦天際藍 */
+  --teal-hover: #0077ed;
+  --teal-light: #47a3ff;
+  --teal-soft-bg: rgba(0, 113, 227, 0.08);
+  --teal-border: rgba(0, 113, 227, 0.24);
+
+  --warm-sand: #f59e0b; /* 琥珀金點綴 */
+  --warm-sand-hover: #d97706;
   --warm-sand-soft: rgba(245, 158, 11, 0.1);
   --warm-sand-border: rgba(245, 158, 11, 0.28);
   
-  --sage-green: #10b981; /* 薄荷寶石綠 */
-  --sage-soft: rgba(16, 185, 129, 0.1);
-  --sage-border: rgba(16, 185, 129, 0.25);
+  --sage-green: #34c759; /* iOS 招牌翠綠 */
+  --sage-soft: rgba(52, 199, 89, 0.12);
+  --sage-border: rgba(52, 199, 89, 0.3);
 
-  --nude-rose: #f43f5e;
-  --alert-crimson: #ef4444;
-  --alert-soft: rgba(239, 68, 68, 0.08);
+  --alert-crimson: #ff3b30; /* iOS 警告紅 */
+  --alert-soft: rgba(255, 59, 48, 0.1);
 
-  /* 文字配色：深柔黑與櫻粉深灰，文字自然斷行不突兀 */
-  --text-primary: #1f1b24;
-  --text-secondary: #4a4453;
-  --text-muted: #827b8d;
-  --text-brand: #e11d48;
+  /* 文字配色：Apple 招牌深柔黑與階梯灰階 */
+  --text-primary: #1d1d1f;
+  --text-secondary: #515154;
+  --text-muted: #86868b;
+  --text-brand: #0071e3;
   --text-gold: #b45309;
 
-  /* 晶燦立體光影與高透光玻璃擬態 */
-  --border-subtle: rgba(255, 182, 193, 0.45);
-  --border-bright: rgba(255, 101, 132, 0.4);
-  --border-glass: rgba(255, 255, 255, 0.9);
+  /* iOS 1px 極細光影邊框 (Hairline Border) 與液態玻璃擬態 */
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-bright: rgba(0, 113, 227, 0.35);
+  --border-glass: rgba(255, 255, 255, 0.55);
 
-  --shadow-sm: 0 2px 10px rgba(225, 29, 72, 0.05);
-  --shadow-card: 0 8px 24px rgba(255, 101, 132, 0.08), 0 2px 6px rgba(245, 158, 11, 0.04);
-  --shadow-card-hover: 0 16px 36px rgba(225, 29, 72, 0.16), 0 4px 12px rgba(245, 158, 11, 0.1);
-  --shadow-glow-pink: 0 6px 24px rgba(255, 101, 132, 0.35);
-  --shadow-glow-gold: 0 6px 24px rgba(245, 158, 11, 0.35);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-card-hover: 0 14px 34px rgba(0, 0, 0, 0.09), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-glow-teal: 0 6px 20px rgba(0, 113, 227, 0.28);
+  --shadow-glow-sand: 0 6px 20px rgba(245, 158, 11, 0.25);
 
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-full: 9999px;
+  /* 30px 全膠囊圓角與物理標尺 */
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-full: 9999px; /* 30px+ 膠囊造型 */
 
-  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* SwiftUI 物理彈簧時間曲線 */
+  --transition-fast: 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-normal: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-bounce: 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* ==========================================================================
-   核心重置與字型排版 (自然斷行、不奇怪斷字)
+   Apple iOS 核心重置與排版
    ========================================================================== */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html {
@@ -91,7 +93,7 @@ html {
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "Plus Jakarta Sans", "Noto Sans TC", sans-serif;
   background-color: var(--bg-main);
   color: var(--text-primary);
   min-height: 100vh;
@@ -99,13 +101,13 @@ body {
   overflow-x: hidden;
   word-break: normal;
   overflow-wrap: break-word;
-  /* ✨ 珠光亮晶晶與柔光漫射光暈漸層 */
+  /* 柔和環境光暈 */
   background-image: 
-    radial-gradient(circle at 10% 8%, rgba(255, 117, 140, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 90% 20%, rgba(245, 158, 11, 0.07) 0%, transparent 50%),
-    radial-gradient(circle at 50% 85%, rgba(168, 85, 247, 0.06) 0%, transparent 60%),
-    linear-gradient(180deg, #fff9f9 0%, #fff0f3 100%);
+    radial-gradient(circle at 15% 10%, rgba(0, 113, 227, 0.04) 0%, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(52, 199, 89, 0.03) 0%, transparent 50%),
+    linear-gradient(180deg, #f5f5f7 0%, #ebebef 100%);
 }
+
 
 /* ✨ 閃爍發光動效 (Sparkle Animation) */
 @keyframes glitterPulse {
@@ -148,9 +150,40 @@ body {
 }
 
 .stock-pill.out_of_stock {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(239, 68, 68, 0.14);
   color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  font-weight: 900;
+}
+
+/* 缺貨商品卡片專屬顯著視覺提示 (已售罄遮罩與醒目標籤) */
+.product-card.is-out-of-stock {
+  position: relative;
+}
+
+.product-card.is-out-of-stock .product-image {
+  filter: grayscale(85%) contrast(0.9);
+  opacity: 0.65;
+}
+
+.product-card.is-out-of-stock .product-image-box::after {
+  content: "已售罄 · 缺貨中";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  background: rgba(225, 29, 72, 0.92);
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 18px rgba(225, 29, 72, 0.45);
+  border: 2px solid #ffffff;
+  pointer-events: none;
+  z-index: 5;
+  white-space: nowrap;
 }
 
 /* ==========================================================================
@@ -1206,49 +1239,288 @@ body {
 /* ==========================================================================
    頁尾資訊 (Footer - 溫暖人文氣息)
    ========================================================================== */
+/* ==========================================================================
+   服務信任標章區 (Trust Badges - Apple Elegance)
+   ========================================================================== */
+.trust-badges-section {
+  max-width: 1400px;
+  margin: 60px auto 30px;
+  padding: 0 24px;
+}
+
+.trust-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.trust-badge-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-md);
+  padding: 22px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+
+.trust-badge-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+.trust-badge-icon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.trust-badge-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.trust-badge-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   全站頁尾百寶箱 (Footer Ecosystem - 6大功能模組)
+   ========================================================================== */
 .footer {
-  background: #f4efe6;
-  border-top: 1px solid var(--border-subtle);
+  background: #ebebed;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   padding: 60px 24px 34px;
-  margin-top: 80px;
+  margin-top: 60px;
+  color: var(--text-primary);
 }
 
 .footer-container {
   max-width: 1400px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 36px;
+  grid-template-columns: 1.4fr 1fr 1.2fr 1.2fr;
+  gap: 40px;
   margin-bottom: 40px;
 }
 
 .footer-block-title {
-  font-size: 1.05rem;
-  font-weight: 900;
-  color: var(--teal-primary);
-  margin-bottom: 14px;
-  letter-spacing: 0.5px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-accordion-indicator {
+  display: none;
+  font-size: 1.2rem;
+  font-weight: 400;
+  transition: transform 0.25s ease;
+}
+
+.footer-links-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-link-item a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.15s ease, transform 0.15s ease;
+  display: inline-block;
+}
+
+.footer-link-item a:hover {
+  color: #0071e3;
+  transform: translateX(3px);
 }
 
 .footer-text {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  line-height: 1.8;
+  line-height: 1.7;
+}
+
+/* 電子報訂閱框 */
+.footer-newsletter-box {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-newsletter-form {
+  display: flex;
+  gap: 8px;
+}
+
+.footer-newsletter-input {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 9999px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.footer-newsletter-input:focus {
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+/* 社群與 App 官方按鈕 */
+.footer-social-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.footer-social-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s ease;
+}
+
+.footer-social-btn:hover {
+  transform: scale(1.12);
+  background: #0071e3;
+  color: #ffffff;
+}
+
+.footer-app-btn-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.footer-app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.footer-app-btn:hover {
+  transform: scale(1.02);
+  border-color: #0071e3;
+  color: #0071e3;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.12);
+}
+
+/* 語系與貨幣選單 */
+.footer-selectors-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.footer-select {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  outline: none;
+  cursor: pointer;
 }
 
 .footer-bottom {
   max-width: 1400px;
   margin: 0 auto;
   padding-top: 24px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
+
+/* 一鍵返回頂部按鈕 (Back-to-Top Floating Button) */
+.btn-back-to-top {
+  position: fixed;
+  bottom: 84px;
+  right: 22px;
+  z-index: 995;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #1d1d1f;
+  font-weight: 800;
+  font-size: 1rem;
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.btn-back-to-top.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.btn-back-to-top:hover {
+  transform: translateY(-3px) scale(1.08);
+  background: #0071e3;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 113, 227, 0.35);
+}
+
 
 /* 狀態 Badge */
 .badge-approved {
@@ -1457,27 +1729,32 @@ body {
   cursor: pointer;
 }
 
-/* App 下載 Modal 分頁標籤 */
+/* App 下載 Modal 分頁標籤 (Capsule Pill Style) */
 .app-tab-btn {
-  padding: 12px 18px;
-  border: none;
+  padding: 8px 18px;
+  border: 1.5px solid transparent;
   background: transparent;
+  border-radius: 9999px !important;
   font-size: 0.88rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
-  border-bottom: 2.5px solid transparent;
-  transition: all var(--transition-fast);
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
 }
 
 .app-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.08);
   color: var(--text-primary);
+  transform: scale(1.02);
 }
 
 .app-tab-btn.active {
-  color: var(--teal-primary);
-  border-bottom-color: var(--teal-primary);
-  background: rgba(255, 255, 255, 0.6);
+  color: #0071e3 !important;
+  background: #ffffff !important;
+  border-color: rgba(0, 113, 227, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.12) !important;
 }
 
 /* 步驟指南卡片 */
@@ -1670,15 +1947,52 @@ body {
 }
 
 /* ==========================================================================
-   圓弧晶透毛玻璃精品按鈕設計 (Glassmorphism Pill Buttons)
+   Apple iOS 全膠囊液態玻璃按鈕系統 (All Boxed Buttons to Capsule Pill Shape)
+   使用者指定：所有有框框按鍵均統一為高質感圓角膠囊按鈕
    ========================================================================== */
-.btn {
+.btn,
+button.btn,
+a.btn,
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-cyan,
+.btn-sm,
+.btn-lg,
+.btn-outline,
+.user-status-pill,
+.boutique-category-dropdown,
+.modal-footer .btn,
+.modal-card .btn,
+.admin-tab-btn,
+.cart-qty-ctrl .qty-btn,
+.qty-btn,
+.stock-pill,
+.badge-pill,
+.form-select,
+.select-pill,
+.action-btn,
+.table-btn {
   border-radius: 9999px !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
-  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, background 0.15s ease, border-color 0.15s ease !important;
   position: relative;
   overflow: hidden;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.btn {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 24px;
+}
+
+.btn:hover {
+  transform: scale(1.03) !important;
 }
 
 .btn:active {
@@ -1686,27 +2000,116 @@ body {
 }
 
 .btn-primary {
-  box-shadow: 0 4px 18px rgba(255, 101, 132, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
+  background: #0071e3 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 14px rgba(0, 113, 227, 0.28) !important;
 }
 
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.75) !important;
-  border: 1px solid rgba(255, 255, 255, 0.85) !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+.btn-primary:hover {
+  background: #0077ed !important;
+  box-shadow: 0 8px 24px rgba(0, 113, 227, 0.38) !important;
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-color: rgba(255, 101, 132, 0.4) !important;
-  box-shadow: 0 6px 16px rgba(255, 101, 132, 0.15) !important;
+.btn-secondary,
+.btn-outline,
+.boutique-category-dropdown {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #1d1d1f !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 
-/* 搖晃動畫 (未上傳圖檔阻擋時震動提醒) */
+.btn-secondary:hover,
+.btn-outline:hover,
+.boutique-category-dropdown:hover {
+  background: #ffffff !important;
+  border-color: rgba(0, 113, 227, 0.5) !important;
+  color: #0071e3 !important;
+  box-shadow: 0 4px 16px rgba(0, 113, 227, 0.15) !important;
+}
+
+.btn-danger {
+  background: #ff3b30 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 14px rgba(255, 59, 48, 0.25) !important;
+}
+
+.btn-cyan {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.28) !important;
+}
+
+/* 補貨預約標章與狀態樣式 */
+.cart-restock-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  padding: 3px 10px;
+  border-radius: 9999px !important;
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+/* iOS 錯誤左右抖動動畫 (Error Shake Animation) */
+.ios-shake, .shake {
+  animation: iosShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+}
+
+@keyframes iosShake {
+  0%, 100% { transform: translateX(0); }
+  15%, 55%, 85% { transform: translateX(-7px); }
+  35%, 75% { transform: translateX(7px); }
+}
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-6px); }
-  40%, 80% { transform: translateX(6px); }
+  15%, 55%, 85% { transform: translateX(-7px); }
+  35%, 75% { transform: translateX(7px); }
 }
+
+/* ==========================================================================
+   移除動態島 (Dynamic Island) - 使用者明確要求不要有動態島，完全隱藏
+   ========================================================================== */
+.ios-dynamic-island {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.sticky-add-to-cart-bar {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 998;
+  background: rgba(29, 29, 31, 0.88);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  padding: 8px 18px 8px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+  color: #ffffff;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sticky-add-to-cart-bar.is-hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(40px);
+  pointer-events: none;
+}
+
 
 /* ==========================================================================
    ✨ 像 Instagram (IG) 一樣靈動的 5 大微互動與物理彈簧動效 (Micro-interactions)
@@ -1864,5 +2267,390 @@ body {
   border-radius: 9999px;
   width: 100%;
   margin-top: auto;
+}
+
+/* ==========================================================================
+   5. 服務信任與安全標章 (Trust Badges Section)
+   ========================================================================== */
+.trust-badges-section {
+  background: #ffffff;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 38px 24px;
+}
+
+.trust-badges-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.trust-badge-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle-warm, #f8f6f0);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.trust-badge-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.trust-badge-icon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.trust-badge-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+
+.trust-badge-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   6. 品牌旗艦級頁尾 (6-Module Brand Footer & Mobile Accordion)
+   ========================================================================== */
+.footer {
+  background: #1d1d1f;
+  color: #f5f5f7;
+  padding: 56px 24px 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.85rem;
+}
+
+.footer-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.3fr 1.1fr 1.2fr 1.2fr 1fr;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-block-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-accordion-header {
+  cursor: default;
+  user-select: none;
+}
+
+.footer-accordion-icon {
+  display: none;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #a1a1a6;
+  transition: transform 0.2s ease;
+}
+
+.footer-text {
+  color: #a1a1a6;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  font-size: 0.82rem;
+}
+
+.footer-links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-links-list li a {
+  color: #a1a1a6;
+  text-decoration: none;
+  transition: color 0.18s ease;
+  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-links-list li a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* 電子報輸入框 */
+.footer-newsletter-box {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.footer-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  padding: 8px 14px;
+  color: #ffffff;
+  font-size: 0.82rem;
+  flex: 1;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.footer-input:focus {
+  border-color: #0071e3;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.footer-input::placeholder {
+  color: #86868b;
+}
+
+/* 下載與社群按鈕 */
+.footer-social-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.footer-social-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+  font-size: 0.95rem;
+}
+
+.footer-social-btn:hover {
+  background: #0071e3;
+  transform: translateY(-2px);
+}
+
+.footer-app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  padding: 8px 14px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.footer-app-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 語系與貨幣選擇器 */
+.footer-select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.footer-select {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.footer-select option {
+  background: #1d1d1f;
+  color: #ffffff;
+}
+
+.footer-select:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* 頁尾底部版權與合規 */
+.footer-bottom {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: #86868b;
+}
+
+.footer-legal-links {
+  display: flex;
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-legal-links a {
+  color: #86868b;
+  text-decoration: none;
+}
+
+.footer-legal-links a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   7. 一鍵返回頂部 (Back to Top Floating Button)
+   ========================================================================== */
+.btn-back-to-top {
+  position: fixed;
+  right: 22px;
+  bottom: 84px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #1d1d1f;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+  z-index: 890;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px) scale(0.9);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-back-to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.btn-back-to-top:hover {
+  background: #ffffff;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  color: #0071e3;
+}
+
+/* ==========================================================================
+   8. 行動端折疊頁尾 (Mobile Accordion Footer RWD)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .trust-badges-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .footer {
+    padding: 36px 16px 88px; /* 留出底部導覽列距離 */
+  }
+
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .footer-column {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 14px 0;
+  }
+
+  .footer-accordion-header {
+    cursor: pointer;
+    margin-bottom: 0;
+    padding: 4px 0;
+  }
+
+  .footer-accordion-icon {
+    display: inline-block;
+  }
+
+  .footer-accordion-content {
+    display: none;
+    padding-top: 12px;
+  }
+
+  .footer-column.is-expanded .footer-accordion-content {
+    display: block;
+    animation: fadeInDown 0.25s ease forwards;
+  }
+
+  .footer-column.is-expanded .footer-accordion-icon {
+    transform: rotate(180deg);
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .btn-back-to-top {
+    bottom: 74px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 

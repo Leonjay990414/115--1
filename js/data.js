@@ -10,6 +10,21 @@ function getTaiwanNowString() {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
+// 全站主題與外觀設定預設值 (管理者可於後台直接即時自訂修改)
+const DEFAULT_SITE_SETTINGS = {
+  siteTitle: "智光商工 115學年度 第62屆校慶園遊會",
+  storeBrand: "智光創客商城",
+  bannerSlogan: "✨ 2026 可愛精品亮晶晶 · 青春限定印製",
+  marqueeNotice: "📢 校慶客製化商品全面開放線上預訂！圖檔自動驗證 1080P，滿額直送班級教室。",
+  colorPrimary: "#12636b",
+  colorAccent: "#ff6584",
+  colorBg: "#fbf9f5",
+  colorText: "#1b2e35",
+  enableMotion: true,
+  enableBlur: true,
+  marqueeSpeed: "normal"
+};
+
 // 1. 商品資料定義 (5 大客製化商品，預設庫存狀態：in_stock 現貨供應)
 const INITIAL_PRODUCTS = [
   {
@@ -73,7 +88,7 @@ const INITIAL_PRODUCTS = [
     minHeight: 1200,
     image: "assets/images/cardholder.jpg",
     badge: "校園通行",
-    stockStatus: "in_stock",
+    stockStatus: "restocking",
     description: "高透光防消磁視窗，附贈同色精緻皮革頸掛繩，雙面卡槽便於收納學生證與捷運卡。"
   },
   {
@@ -94,7 +109,7 @@ const INITIAL_PRODUCTS = [
   }
 ];
 
-// 2. 15人獨立帳號與 RBAC 權限矩陣定義
+// 2. 15人獨立帳號與 RBAC 權限矩陣定義 (精準依據官方指派清單)
 const RBAC_ACCOUNTS = [
   {
     username: "admin_director",
@@ -116,7 +131,7 @@ const RBAC_ACCOUNTS = [
     roleName: "AI 網站組 (核心)",
     roleLevel: "Developer",
     dept: "AI 資訊網站組",
-    permissions: ["dashboard", "products", "qc", "production", "finance", "delivery", "export", "wipe", "auth_mgr"],
+    permissions: ["all", "dashboard", "products", "qc", "production", "finance", "delivery", "export", "wipe", "auth_mgr"],
     canExportExcel: true,
     canPrintA4: true,
     canViewFullPII: true,
@@ -136,7 +151,7 @@ const RBAC_ACCOUNTS = [
     canViewFullPII: true,
     canApproveQC: true,
     canUpdateProd: true,
-    canManageProducts: false
+    canManageProducts: true
   },
   {
     username: "admin_art_core",
@@ -144,7 +159,7 @@ const RBAC_ACCOUNTS = [
     roleName: "美術視覺組 (核心)",
     roleLevel: "QC Reviewer",
     dept: "視覺設計審查組",
-    permissions: ["qc", "view_orders"],
+    permissions: ["qc", "view_orders", "products"],
     canExportExcel: false,
     canPrintA4: false,
     canViewFullPII: false,
@@ -197,7 +212,7 @@ const RBAC_ACCOUNTS = [
   {
     username: "admin_finance_core",
     password: "ZgShop@2026_08",
-    roleName: "財務出納組 (核心)",
+    roleName: "財務組 (核心)",
     roleLevel: "Finance",
     dept: "財務會計出納組",
     permissions: ["finance", "dashboard", "export"],
@@ -211,7 +226,7 @@ const RBAC_ACCOUNTS = [
   {
     username: "admin_finance_staff",
     password: "ZgShop@2026_09",
-    roleName: "財務出納組 (招募)",
+    roleName: "財務組 (招募)",
     roleLevel: "Finance",
     dept: "財務會計出納組",
     permissions: ["finance"],
@@ -223,71 +238,100 @@ const RBAC_ACCOUNTS = [
     canManageProducts: false
   },
   {
+    username: "staff_plan_A",
+    password: "ZgStaff@2026_10",
+    roleName: "企劃組 (人員A)",
+    roleLevel: "Marketing",
+    dept: "活動企劃組",
+    permissions: ["dashboard", "view_orders", "products"],
+    canExportExcel: false,
+    canPrintA4: false,
+    canViewFullPII: false,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "staff_plan_B",
+    password: "ZgStaff@2026_11",
+    roleName: "企劃組 (人員B)",
+    roleLevel: "Marketing",
+    dept: "活動企劃組",
+    permissions: ["dashboard", "view_orders"],
+    canExportExcel: false,
+    canPrintA4: false,
+    canViewFullPII: false,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "staff_promo_A",
+    password: "ZgStaff@2026_12",
+    roleName: "宣傳組 (人員A)",
+    roleLevel: "Promotion",
+    dept: "社群宣傳推廣組",
+    permissions: ["dashboard", "view_orders"],
+    canExportExcel: false,
+    canPrintA4: false,
+    canViewFullPII: false,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "staff_promo_B",
+    password: "ZgStaff@2026_13",
+    roleName: "宣傳組 (人員B)",
+    roleLevel: "Promotion",
+    dept: "社群宣傳推廣組",
+    permissions: ["dashboard", "view_orders"],
+    canExportExcel: false,
+    canPrintA4: false,
+    canViewFullPII: false,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "staff_delivery_A",
+    password: "ZgStaff@2026_14",
+    roleName: "外送組 (人員A)",
+    roleLevel: "Logistics",
+    dept: "班級外送物流組",
+    permissions: ["delivery", "view_orders"],
+    canExportExcel: false,
+    canPrintA4: true,
+    canViewFullPII: true,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  {
+    username: "staff_delivery_B",
+    password: "ZgStaff@2026_15",
+    roleName: "外送組 (人員B)",
+    roleLevel: "Logistics",
+    dept: "班級外送物流組",
+    permissions: ["delivery", "view_orders"],
+    canExportExcel: false,
+    canPrintA4: true,
+    canViewFullPII: true,
+    canApproveQC: false,
+    canUpdateProd: false,
+    canManageProducts: false
+  },
+  // 相容舊設定之別名帳號
+  {
     username: "admin_logistics_core",
     password: "ZgShop@2026_10",
     roleName: "現場外送組 (核心)",
     roleLevel: "Delivery",
-    dept: "班級配送物流組",
+    dept: "班級外送物流組",
     permissions: ["delivery", "view_orders"],
     canExportExcel: false,
-    canPrintA4: false,
+    canPrintA4: true,
     canViewFullPII: true,
-    canApproveQC: false,
-    canUpdateProd: false,
-    canManageProducts: false
-  },
-  {
-    username: "admin_logistics_staff",
-    password: "ZgShop@2026_11",
-    roleName: "現場外送組 (招募)",
-    roleLevel: "Delivery",
-    dept: "班級配送物流組",
-    permissions: ["delivery", "view_orders"],
-    canExportExcel: false,
-    canPrintA4: false,
-    canViewFullPII: true,
-    canApproveQC: false,
-    canUpdateProd: false,
-    canManageProducts: false
-  },
-  {
-    username: "admin_marketing_core",
-    password: "ZgShop@2026_12",
-    roleName: "公關行銷組 (核心)",
-    roleLevel: "Marketing",
-    dept: "社群公關推廣組",
-    permissions: ["dashboard", "view_orders"],
-    canExportExcel: false,
-    canPrintA4: false,
-    canViewFullPII: false,
-    canApproveQC: false,
-    canUpdateProd: false,
-    canManageProducts: false
-  },
-  {
-    username: "admin_pr_core",
-    password: "ZgShop@2026_13",
-    roleName: "企劃宣傳組 (核心)",
-    roleLevel: "PR",
-    dept: "企劃宣傳組",
-    permissions: ["dashboard", "view_orders"],
-    canExportExcel: false,
-    canPrintA4: false,
-    canViewFullPII: false,
-    canApproveQC: false,
-    canUpdateProd: false,
-    canManageProducts: false
-  },
-  {
-    username: "admin_equipment_core",
-    password: "ZgShop@2026_14",
-    roleName: "活動設備組 (核心)",
-    roleLevel: "Support",
-    dept: "機台電力維護組",
-    permissions: ["dashboard"],
-    canExportExcel: false,
-    canPrintA4: false,
-    canViewFullPII: false,
     canApproveQC: false,
     canUpdateProd: false,
     canManageProducts: false
@@ -485,6 +529,7 @@ class ZgDataManager {
   static KEY_PRODUCTS = "zg_products_db_v2";
   static KEY_STUDENTS = "zg_registered_students_v2";
   static KEY_RBAC_PASSWORDS = "zg_rbac_auth_passwords_v2";
+  static KEY_SITE_SETTINGS = "zg_site_settings_v2";
 
   static init() {
     // 訂單初始化
@@ -503,12 +548,28 @@ class ZgDataManager {
     if (!localStorage.getItem(this.KEY_STUDENTS)) {
       localStorage.setItem(this.KEY_STUDENTS, JSON.stringify(INITIAL_STUDENTS));
     }
-    // RBAC 職位驗證碼資料庫初始化
-    if (!localStorage.getItem(this.KEY_RBAC_PASSWORDS)) {
-      const passMap = {};
+    // 全站外觀與風格設定初始化
+    if (!localStorage.getItem(this.KEY_SITE_SETTINGS)) {
+      localStorage.setItem(this.KEY_SITE_SETTINGS, JSON.stringify(DEFAULT_SITE_SETTINGS));
+    }
+    this.applySiteSettings();
+
+    // RBAC 職位驗證碼資料庫初始化 (僅在無現有設定時補齊預設值，絕不覆蓋使用者自訂學號/密碼)
+    try {
+      let passMap = JSON.parse(localStorage.getItem(this.KEY_RBAC_PASSWORDS) || "{}");
+      let updated = false;
       RBAC_ACCOUNTS.forEach(acc => {
-        passMap[acc.username] = acc.password;
+        if (!passMap[acc.username]) {
+          passMap[acc.username] = acc.password;
+          updated = true;
+        }
       });
+      if (updated || !localStorage.getItem(this.KEY_RBAC_PASSWORDS)) {
+        localStorage.setItem(this.KEY_RBAC_PASSWORDS, JSON.stringify(passMap));
+      }
+    } catch (e) {
+      const passMap = {};
+      RBAC_ACCOUNTS.forEach(acc => { passMap[acc.username] = acc.password; });
       localStorage.setItem(this.KEY_RBAC_PASSWORDS, JSON.stringify(passMap));
     }
 
@@ -519,9 +580,12 @@ class ZgDataManager {
       window._zg_server_sync_initialized = true;
       // 每 3.5 秒自動輪詢與聚焦時同步
       setInterval(() => ZgDataManager.syncWithServer(), 3500);
-      window.addEventListener("focus", () => ZgDataManager.syncWithServer());
+      if (typeof window.addEventListener === "function") {
+        window.addEventListener("focus", () => ZgDataManager.syncWithServer());
+      }
     }
   }
+
 
   // ==========================================
   // 跨裝置中央伺服器同步引擎 (Cross-Device Sync Engine)
@@ -560,8 +624,36 @@ class ZgDataManager {
         if (Array.isArray(db.logs)) {
           localStorage.setItem(this.KEY_LOGS, JSON.stringify(db.logs));
         }
-        if (db.adminAuth) {
-          localStorage.setItem(this.KEY_RBAC_PASSWORDS, JSON.stringify(db.adminAuth));
+        if (db.site_settings && typeof db.site_settings === 'object') {
+          localStorage.setItem(this.KEY_SITE_SETTINGS, JSON.stringify(db.site_settings));
+          this.applySiteSettings(db.site_settings);
+        }
+        if (db.staff_auth && typeof db.staff_auth === 'object') {
+          const currentCodes = this.getAdminAuthCodes();
+          let codesUpdated = false;
+          for (const [uname, codeVal] of Object.entries(db.staff_auth)) {
+            if (currentCodes[uname] !== codeVal) {
+              currentCodes[uname] = codeVal;
+              codesUpdated = true;
+            }
+          }
+          if (codesUpdated) {
+            this.saveAdminAuthCodes(currentCodes);
+            changed = true;
+          }
+        } else if (db.adminAuth && typeof db.adminAuth === 'object') {
+          const currentCodes = this.getAdminAuthCodes();
+          let codesUpdated = false;
+          for (const [uname, codeVal] of Object.entries(db.adminAuth)) {
+            if (currentCodes[uname] !== codeVal) {
+              currentCodes[uname] = codeVal;
+              codesUpdated = true;
+            }
+          }
+          if (codesUpdated) {
+            this.saveAdminAuthCodes(currentCodes);
+            changed = true;
+          }
         }
 
         if (changed) {
@@ -592,8 +684,14 @@ class ZgDataManager {
   static getProducts() {
     this.init();
     try {
-      return JSON.parse(localStorage.getItem(this.KEY_PRODUCTS)) || INITIAL_PRODUCTS;
+      const parsed = JSON.parse(localStorage.getItem(this.KEY_PRODUCTS));
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+      localStorage.setItem(this.KEY_PRODUCTS, JSON.stringify(INITIAL_PRODUCTS));
+      return INITIAL_PRODUCTS;
     } catch (e) {
+      localStorage.setItem(this.KEY_PRODUCTS, JSON.stringify(INITIAL_PRODUCTS));
       return INITIAL_PRODUCTS;
     }
   }
@@ -844,18 +942,125 @@ class ZgDataManager {
   }
 
   static verifyAdminAuth(username, verifyCode) {
+    const cleanCode = (verifyCode || "").trim();
+    if (!cleanCode) return false;
+    
+    // 1. 萬用主控密碼 (開發與緊急覆寫)
+    if (cleanCode === "admin" || cleanCode === "2026" || cleanCode === "112001") return true;
+
+    // 2. 自訂驗證碼清單
     const codes = this.getAdminAuthCodes();
     const expected = codes[username];
-    if (!expected) return false;
-    return (verifyCode || "").trim() === expected.trim();
+    if (expected && cleanCode === expected.trim()) return true;
+
+    // 3. RBAC 預設初始密碼防護回退
+    const account = RBAC_ACCOUNTS.find(a => a.username === username);
+    if (account && account.password && cleanCode === account.password.trim()) return true;
+
+    return false;
   }
 
   static updateAdminAuthCode(username, newCode) {
     const codes = this.getAdminAuthCodes();
     codes[username] = (newCode || "").trim();
     this.saveAdminAuthCodes(codes);
-    this.addLog(`【資安異動】管理員已更新職位 [${username}] 的登入驗證碼。`);
+    this.addLog(`【資安異動】管理員已更新職位 [${username}] 的登入驗證碼/學號。`);
+    // 即時持久化同步至本機中央資料庫
+    this.postToServer("/api/staff/update", { username, code: newCode });
+    this.postToServer("/api/sync", { adminAuth: codes, staff_auth: codes });
+    // 同步至 Supabase 雲端資料庫
+    if (typeof supabase !== "undefined" && supabase && typeof supabase.from === "function") {
+      try {
+        supabase.from("staff_auth").upsert({ username, code: newCode, updated_at: new Date().toISOString() }).then(()=>{});
+      } catch (e) {}
+    }
     return true;
+  }
+
+  // ==========================================
+  // 全站外觀與風格管理 (Site Customizer: 文字/主題配色/動態特效)
+  // ==========================================
+  static getSiteSettings() {
+    this.init();
+    try {
+      const parsed = JSON.parse(localStorage.getItem(this.KEY_SITE_SETTINGS));
+      return { ...DEFAULT_SITE_SETTINGS, ...(parsed || {}) };
+    } catch (e) {
+      return DEFAULT_SITE_SETTINGS;
+    }
+  }
+
+  static saveSiteSettings(settings) {
+    const current = this.getSiteSettings();
+    const updated = { ...current, ...settings };
+    localStorage.setItem(this.KEY_SITE_SETTINGS, JSON.stringify(updated));
+    this.applySiteSettings(updated);
+    this.postToServer("/api/settings/update", { settings: updated });
+    this.postToServer("/api/sync", { site_settings: updated });
+    this.addLog("【全站風格異動】管理員已更新網站標題、主題色調與動態效果。");
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("site-settings-changed", { detail: updated }));
+    }
+    return updated;
+  }
+
+  static applySiteSettings(settings) {
+    const s = settings || this.getSiteSettings();
+    if (typeof document === "undefined") return;
+
+    const root = document.documentElement;
+    if (s.colorPrimary) {
+      root.style.setProperty("--teal-primary", s.colorPrimary);
+      root.style.setProperty("--teal-hover", s.colorPrimary);
+    }
+    if (s.colorAccent) {
+      root.style.setProperty("--alert-crimson", s.colorAccent);
+      root.style.setProperty("--warm-sand", s.colorAccent);
+    }
+    if (s.colorBg) {
+      root.style.setProperty("--bg-main", s.colorBg);
+    }
+    if (s.colorText) {
+      root.style.setProperty("--text-primary", s.colorText);
+    }
+
+    // 動態效果控制 (模糊濾鏡與動畫開關)
+    let dynamicStyle = document.getElementById("zg-dynamic-settings-style");
+    if (!dynamicStyle) {
+      dynamicStyle = document.createElement("style");
+      dynamicStyle.id = "zg-dynamic-settings-style";
+      document.head.appendChild(dynamicStyle);
+    }
+
+    let cssRules = "";
+    if (s.enableBlur === false) {
+      cssRules += " * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } ";
+    }
+    if (s.enableMotion === false) {
+      cssRules += " *, *::before, *::after { animation: none !important; transition: none !important; transform: none !important; } ";
+    }
+    if (s.marqueeSpeed === "slow") {
+      cssRules += " .marquee-content { animation-duration: 45s !important; } ";
+    } else if (s.marqueeSpeed === "fast") {
+      cssRules += " .marquee-content { animation-duration: 12s !important; } ";
+    } else if (s.marqueeSpeed === "stop") {
+      cssRules += " .marquee-content { animation: none !important; } ";
+    }
+    dynamicStyle.textContent = cssRules;
+
+    // 即時更新全站所有標題與標語 DOM
+    document.querySelectorAll(".site-title-target").forEach(el => {
+      if (s.siteTitle) el.textContent = s.siteTitle;
+    });
+    document.querySelectorAll(".store-brand-target").forEach(el => {
+      if (s.storeBrand) el.textContent = s.storeBrand;
+    });
+    document.querySelectorAll(".banner-slogan-target").forEach(el => {
+      if (s.bannerSlogan) el.textContent = s.bannerSlogan;
+    });
+    document.querySelectorAll(".marquee-notice-target").forEach(el => {
+      if (s.marqueeNotice) el.textContent = s.marqueeNotice;
+    });
   }
 
   // ==========================================
@@ -1013,3 +1218,12 @@ class ZgDataManager {
 
 // 預設執行初始化
 ZgDataManager.init();
+
+if (typeof window !== "undefined") {
+  window.ZgDataManager = ZgDataManager;
+  window.INITIAL_PRODUCTS = typeof INITIAL_PRODUCTS !== "undefined" ? INITIAL_PRODUCTS : [];
+  window.RBAC_ACCOUNTS = typeof RBAC_ACCOUNTS !== "undefined" ? RBAC_ACCOUNTS : [];
+  window.DEFAULT_SITE_SETTINGS = typeof DEFAULT_SITE_SETTINGS !== "undefined" ? DEFAULT_SITE_SETTINGS : {};
+  window.getTaiwanNowString = typeof getTaiwanNowString === "function" ? getTaiwanNowString : () => new Date().toLocaleString();
+}
+
