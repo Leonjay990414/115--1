@@ -8,6 +8,9 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#fbf9f5">
 
+  <!-- Supabase Cloud SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <!-- 2026 雲舞白 × 變革藍綠 全球美學樣式表 -->
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/print.css">
@@ -67,22 +70,23 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 16px;
-      border-radius: var(--radius-md);
+      padding: 10px 18px;
+      border-radius: 9999px !important;
       color: var(--text-secondary);
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.9rem;
       background: transparent;
       border: 1px solid transparent;
       cursor: pointer;
       width: 100%;
       text-align: left;
-      transition: all var(--transition-fast);
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .admin-tab-btn:hover {
       background: var(--bg-subtle-warm);
       color: var(--text-primary);
+      transform: translateX(4px);
     }
 
     .admin-tab-btn.active {
@@ -90,6 +94,7 @@
       border-color: var(--teal-border);
       color: var(--teal-primary);
       font-weight: 800;
+      box-shadow: 0 2px 8px rgba(18, 99, 107, 0.08);
     }
 
     .admin-content-area {
@@ -194,17 +199,17 @@
   <div id="admin-login-screen" style="position:fixed;inset:0;background:var(--bg-main);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;">
     <div class="modal-card" style="max-width:480px;border-color:var(--border-subtle);box-shadow:0 20px 60px rgba(70,55,40,0.12);">
       <div class="modal-header" style="text-align:center;display:block;background:var(--bg-subtle-warm);">
-        <img src="assets/images/logo.png" style="width:64px;height:64px;border-radius:50%;border:2px solid var(--teal-primary);margin:0 auto 10px;box-shadow:0 4px 14px rgba(18,99,107,0.2);">
+        <img src="assets/images/329643847_635110431752576_2348159241106425372_n.jpg" style="width:64px;height:64px;border-radius:12px;border:2px solid var(--teal-primary);margin:0 auto 10px;box-shadow:0 4px 14px rgba(18,99,107,0.2);object-fit:cover;">
         <h2 style="font-size:1.3rem;font-weight:900;color:var(--text-primary);">後台管理與產線審核系統</h2>
         <div style="font-size:0.82rem;color:var(--teal-primary);margin-top:2px;font-weight:700;">智光商工職業學校 115 年度第六十二屆校慶圓遊會客製專案 (隱密閘道)</div>
       </div>
 
       <!-- 登入模式切換分頁 (雙軌登入：專員學號驗證碼 VS 管理者帳號密碼) -->
       <div class="boutique-tab-nav" style="display:flex;background:var(--bg-subtle-warm);border-bottom:2px solid var(--border-subtle);padding:0 16px;">
-        <button id="admin-tab-btn-code" type="button" class="admin-tab-btn active" onclick="switchAdminLoginMode('code')" style="flex:1;text-align:center;padding:12px 8px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:3px solid var(--teal-primary);color:var(--teal-primary);">
+        <button id="admin-tab-btn-code" type="button" class="admin-login-tab-btn active" onclick="switchAdminLoginMode('code')" style="flex:1;text-align:center;padding:12px 8px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:3px solid var(--teal-primary);color:var(--teal-primary);">
           ⚡ 專員快捷驗證碼登入
         </button>
-        <button id="admin-tab-btn-password" type="button" class="admin-tab-btn" onclick="switchAdminLoginMode('password')" style="flex:1;text-align:center;padding:12px 8px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;color:var(--text-secondary);">
+        <button id="admin-tab-btn-password" type="button" class="admin-login-tab-btn" onclick="switchAdminLoginMode('password')" style="flex:1;text-align:center;padding:12px 8px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;color:var(--text-secondary);">
           🔑 管理者帳號密碼登入
         </button>
       </div>
@@ -214,8 +219,10 @@
         <form id="form-admin-login-code" onsubmit="handleAdminLoginWithCode(event)">
           <div class="modal-body" style="gap:16px;">
             <div style="background:var(--teal-soft-bg);border:1px solid var(--teal-border);border-radius:var(--radius-md);padding:10px 14px;font-size:0.82rem;color:var(--teal-primary);line-height:1.5;">
-              ⚡ <strong>專員專屬驗證碼登入：</strong> 請於下方選取您的職位，並輸入您的專員學號（即為登入驗證碼）即可直接驗證登入。
+              ⚡ <strong>專員專屬驗證碼登入：</strong> 請於下方選取您的職位，並輸入專屬登入驗證碼即可快速驗證登入。
             </div>
+
+            <div id="admin-code-login-error" class="login-error-banner" style="display:none;background:#fef2f2;border:1px solid #f87171;color:#dc2626;border-radius:30px;padding:8px 16px;font-size:0.85rem;font-weight:700;align-items:center;gap:8px;"></div>
 
             <div class="form-group">
               <label class="form-label" for="login-role-select" style="color:var(--teal-primary);font-weight:700;">
@@ -223,29 +230,29 @@
               </label>
               <select id="login-role-select" class="form-select" style="border-color:var(--teal-primary);" required>
                 <option value="">-- 請選擇工作人員職位 --</option>
-                <option value="admin_director">總召 (主辦人) - 全權限 / 銷毀權</option>
-                <option value="admin_web_core">AI 資訊網站組 (核心) - 全權限 / 系統開發</option>
-                <option value="admin_web_staff">AI 資訊網站組 (招募) - 系統開發 / 報表</option>
-                <option value="admin_art_core">美術視覺組 (核心) - 1080P 圖檔審核</option>
-                <option value="admin_art_staff">美術視覺組 (招募) - 1080P 圖檔審核</option>
-                <option value="admin_maker_core">商品製作組 (核心) - 產線製造 / 直開原圖</option>
-                <option value="admin_maker_staff">商品製作組 (招募) - 產線製造進度變更</option>
-                <option value="admin_finance_core">財務出納組 (核心) - 營收對帳 / A4三聯單</option>
-                <option value="admin_finance_staff">財務出納組 (招募) - 現金對帳 / A4三聯單</option>
-                <option value="admin_logistics_core">現場外送組 (核心) - 班級配送簽收</option>
-                <option value="admin_logistics_staff">現場外送組 (招募) - 班級外送狀態更新</option>
-                <option value="admin_marketing_core">公關行銷組 (核心) - 營收總覽 (純檢視)</option>
-                <option value="admin_pr_core">企劃宣傳組 (核心) - 活動企劃 (純檢視)</option>
-                <option value="admin_equipment_core">活動設備組 (核心) - 機台設備 (純檢視)</option>
-                <option value="admin_supervisor">指導老師/大會督導 - 籌備委員會 (全權限)</option>
+                <option value="admin_director">總召 (主辦人) - 最高管理員 (Super Admin)</option>
+                <option value="admin_web_core">AI 網站組 (核心) - 系統開發員 (Developer)</option>
+                <option value="admin_web_staff">AI 網站組 (招募) - 系統開發員 (Developer)</option>
+                <option value="admin_art_core">美術視覺組 (核心) - 視覺審核員 (QC Reviewer)</option>
+                <option value="admin_art_staff">美術視覺組 (招募) - 視覺審核員 (QC Reviewer)</option>
+                <option value="admin_maker_core">商品製作組 (核心) - 產線管理員 (Production)</option>
+                <option value="admin_maker_staff">商品製作組 (招募) - 產線管理員 (Production)</option>
+                <option value="admin_finance_core">財務組 (核心) - 帳務管理員 (Finance)</option>
+                <option value="admin_finance_staff">財務組 (招募) - 帳務管理員 (Finance)</option>
+                <option value="staff_plan_A">企劃組 (人員A) - 行銷企劃 (Marketing)</option>
+                <option value="staff_plan_B">企劃組 (人員B) - 行銷企劃 (Marketing)</option>
+                <option value="staff_promo_A">宣傳組 (人員A) - 宣傳執行 (Promotion)</option>
+                <option value="staff_promo_B">宣傳組 (人員B) - 宣傳執行 (Promotion)</option>
+                <option value="staff_delivery_A">外送組 (人員A) - 物流專員 (Logistics)</option>
+                <option value="staff_delivery_B">外送組 (人員B) - 物流專員 (Logistics)</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="login-auth-code">專員學號 (登入驗證碼) <span style="color:red;">*</span></label>
-              <input type="text" id="login-auth-code" class="form-input" placeholder="請輸入專員學號 (例如：112001)" required>
+              <label class="form-label" for="login-auth-code">專員驗證碼 <span style="color:red;">*</span></label>
+              <input type="text" id="login-auth-code" class="form-input" placeholder="請輸入專員驗證碼" required>
               <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">
-                💡 驗證碼預設為各專員學號，後台【專員學號管理】可隨時維護更新。
+                💡 驗證碼可於後台【專員管理】中即時維護與更新。
               </div>
             </div>
           </div>
@@ -261,20 +268,22 @@
 
       <!-- 面板 2：管理者帳號密碼登入 (手動輸入帳號與預設密碼) -->
       <div id="admin-panel-password-login" style="display:none;">
-        <form id="form-admin-login">
+        <form id="form-admin-login" onsubmit="handleAdminPasswordLoginSubmit(event)">
           <div class="modal-body" style="gap:16px;">
             <div style="background:var(--teal-soft-bg);border:1px solid var(--teal-border);border-radius:var(--radius-md);padding:10px 14px;font-size:0.82rem;color:var(--teal-primary);line-height:1.5;">
-              🔑 <strong>帳號密碼登入：</strong> 使用各職位預設管理者帳號與初始密碼登入系統。
+              🔑 <strong>帳號密碼登入：</strong> 使用各職位專屬登入帳號與初始預設密碼登入系統。
             </div>
 
+            <div id="admin-password-login-error" class="login-error-banner" style="display:none;background:#fef2f2;border:1px solid #f87171;color:#dc2626;border-radius:30px;padding:8px 16px;font-size:0.85rem;font-weight:700;align-items:center;gap:8px;"></div>
+
             <div class="form-group">
-              <label class="form-label" for="admin-login-username">專屬管理帳號 (Username) <span style="color:red;">*</span></label>
-              <input type="text" id="admin-login-username" class="form-input" placeholder="例：admin_director" required>
+              <label class="form-label" for="admin-login-username">專屬登入帳號 (Username) <span style="color:red;">*</span></label>
+              <input type="text" id="admin-login-username" class="form-input" placeholder="例：admin_director 或 staff_plan_A" required autocomplete="username">
             </div>
 
             <div class="form-group">
               <label class="form-label" for="admin-login-password">初始預設密碼 (Password) <span style="color:red;">*</span></label>
-              <input type="password" id="admin-login-password" class="form-input" placeholder="例：ZgShop@2026_01" required>
+              <input type="password" id="admin-login-password" class="form-input" placeholder="例：ZgShop@2026_01 或 ZgStaff@2026_10" required autocomplete="current-password">
             </div>
           </div>
 
@@ -296,7 +305,7 @@
     <!-- 左側側邊導覽欄 -->
     <aside class="admin-sidebar">
       <div class="admin-sidebar-header">
-        <img src="assets/images/logo.png" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--teal-primary);">
+        <img src="assets/images/329643847_635110431752576_2348159241106425372_n.jpg" style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--teal-primary);object-fit:cover;">
         <div>
           <div style="font-weight:900;font-size:0.95rem;color:var(--text-primary);">智光創客後台</div>
           <div style="font-size:0.72rem;color:var(--teal-primary);font-weight:700;">RBAC v2.6 MASTER</div>
@@ -304,42 +313,55 @@
       </div>
 
       <ul class="admin-nav-list">
+        <!-- 1. 營業 -->
         <li>
-          <button id="tab-btn-dashboard" class="admin-tab-btn active" data-tab="dashboard">
-            <span>📊</span><span>營運總覽儀表板</span>
+          <button id="tab-btn-dashboard" class="admin-tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+            <span>📊</span><span>營業管理 (營運總覽儀表板)</span>
+          </button>
+        </li>
+        <!-- 2. 美術 -->
+        <li>
+          <button id="tab-btn-qc" class="admin-tab-btn" data-tab="qc" onclick="switchTab('qc')">
+            <span>🎨</span><span>美術審核 (圖檔 QC 審核)</span>
+          </button>
+        </li>
+        <!-- 3. 財務 -->
+        <li>
+          <button id="tab-btn-finance" class="admin-tab-btn" data-tab="finance" onclick="switchTab('finance')">
+            <span>💰</span><span>財務帳務 (營收對帳與 A4 三聯單)</span>
+          </button>
+        </li>
+        <!-- 4. 班級 -->
+        <li>
+          <button id="tab-btn-delivery" class="admin-tab-btn" data-tab="delivery" onclick="switchTab('delivery')">
+            <span>🚚</span><span>班級外送 (班級配送與退件通知)</span>
+          </button>
+        </li>
+        <!-- 5. 產線 (看板與商品維護) -->
+        <li>
+          <button id="tab-btn-production" class="admin-tab-btn" data-tab="production" onclick="switchTab('production')">
+            <span>🏭</span><span>產線製造 (印製對接看板)</span>
           </button>
         </li>
         <li>
-          <button id="tab-btn-qc" class="admin-tab-btn" data-tab="qc">
-            <span>🎨</span><span>美術組圖檔 QC 審核</span>
+          <button id="tab-btn-products" class="admin-tab-btn" data-tab="products" onclick="switchTab('products')">
+            <span>🛍️</span><span>商品管理 (名稱/資訊/圖片修改)</span>
           </button>
         </li>
+        <!-- 6. 專員 -->
         <li>
-          <button id="tab-btn-production" class="admin-tab-btn" data-tab="production">
-            <span>🏭</span><span>產線印製對接看板</span>
+          <button id="tab-btn-auth-codes" class="admin-tab-btn" data-tab="auth_mgr" onclick="switchTab('auth_mgr')">
+            <span>🔑</span><span>專員管理 (各組專員名冊與驗證碼)</span>
           </button>
         </li>
+        <!-- 7. 資安 -->
         <li>
-          <button id="tab-btn-finance" class="admin-tab-btn" data-tab="finance">
-            <span>💰</span><span>財務對帳與 A4 三聯單</span>
-          </button>
-        </li>
-        <li>
-          <button id="tab-btn-delivery" class="admin-tab-btn" data-tab="delivery">
-            <span>🚚</span><span>班級外送與退件通知</span>
-          </button>
-        </li>
-        <li>
-          <button id="tab-btn-auth-codes" class="admin-tab-btn" data-tab="auth_mgr">
-            <span>🔑</span><span>專員學號 (登入驗證碼)</span>
-          </button>
-        </li>
-        <li>
-          <button id="tab-btn-security" class="admin-tab-btn" data-tab="security">
-            <span>🛡️</span><span>資安日誌與 14 天銷毀</span>
+          <button id="tab-btn-security" class="admin-tab-btn" data-tab="security" onclick="switchTab('security')">
+            <span>🛡️</span><span>資安稽核 (系統日誌與防護保存)</span>
           </button>
         </li>
       </ul>
+
 
       <!-- 側邊欄底部帳號資訊 -->
       <div style="padding:16px;border-top:1px solid var(--border-subtle);background:var(--bg-subtle-warm);">
@@ -581,6 +603,39 @@
           </div>
         </section>
 
+        <!-- View: 商品管理與庫存編輯 (Products Management) -->
+        <section id="view-products" class="admin-tab-content">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+            <div>
+              <h3 style="font-size:1.15rem;font-weight:900;color:var(--text-primary);">客製化商品管理與品項維護</h3>
+              <p style="font-size:0.85rem;color:var(--text-secondary);">可即時新增商品、修改商品名稱、尺寸規格、說明介紹、商品圖片連結以及切換庫存現貨/補貨狀態</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openAddProductModal()" style="background:linear-gradient(135deg, #12636b, #0e4f55);">
+              <span>➕ 新增商品品項</span>
+            </button>
+          </div>
+
+          <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);">
+            <div style="overflow-x:auto;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width:70px;">商品圖片</th>
+                    <th style="width:80px;">商品代碼</th>
+                    <th>商品名稱 / 規格</th>
+                    <th>分類系列</th>
+                    <th>單價</th>
+                    <th>庫存現況</th>
+                    <th>切換庫存狀態</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-products-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
         <!-- View: 專員學號 (登入驗證碼管理矩陣) -->
         <section id="view-auth_mgr" class="admin-tab-content">
           <div style="margin-bottom:20px;">
@@ -771,6 +826,89 @@
           <span>🖨️ 開始批次列印勾選單據</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- 模態視窗：商品編輯與新增 (Product Edit / Add Modal) -->
+  <div id="modal-product-edit" class="modal-overlay">
+    <div class="modal-card" style="max-width:640px;">
+      <div class="modal-header">
+        <h3 id="prod-edit-modal-title" class="modal-title">✏️ 編輯商品資訊</h3>
+        <button class="modal-close-btn" onclick="closeProductEditModal()">✕</button>
+      </div>
+      <form id="form-product-edit" onsubmit="handleSaveProductEdit(event)">
+        <div class="modal-body" style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;max-height:75vh;overflow-y:auto;">
+          <input type="hidden" id="edit-prod-id">
+
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label" for="edit-prod-name">商品名稱 <span style="color:red;">*</span></label>
+              <input type="text" id="edit-prod-name" class="form-input" placeholder="例如：經典陶瓷馬克杯" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-prod-code">商品代碼 (工單字尾) <span style="color:red;">*</span></label>
+              <input type="text" id="edit-prod-code" class="form-input" placeholder="例如：MUG" required>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label" for="edit-prod-category">分類系列</label>
+              <select id="edit-prod-category" class="form-select">
+                <option value="陶瓷工藝">☕ 陶瓷工藝</option>
+                <option value="金屬紀念品">🏅 金屬紀念品</option>
+                <option value="皮革配件">👜 皮革配件</option>
+                <option value="文創紀念品">🎨 文創紀念品</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-prod-price">單價 (NT$) <span style="color:red;">*</span></label>
+              <input type="number" id="edit-prod-price" class="form-input" min="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-prod-stock">庫存狀態</label>
+              <select id="edit-prod-stock" class="form-select">
+                <option value="in_stock">🟢 現貨供應中</option>
+                <option value="restocking">🟡 補貨排單中</option>
+                <option value="out_of_stock">🔴 暫時缺貨 (已搶光)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-prod-image">商品圖片網址 / 本機圖片檔案上傳</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" id="edit-prod-image" class="form-input" placeholder="例如：assets/images/mug.jpg 或 https://..." style="flex:1;">
+              <label class="btn btn-secondary btn-sm" style="margin:0;cursor:pointer;white-space:nowrap;padding:8px 14px;">
+                📁 選擇圖片
+                <input type="file" id="edit-prod-file-input" accept="image/*" style="display:none;" onchange="handleProductImageFileUpload(event)">
+              </label>
+            </div>
+            <div id="edit-prod-img-preview-box" style="margin-top:8px;display:flex;align-items:center;gap:10px;">
+              <img id="edit-prod-img-preview" src="" style="width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid var(--border-subtle);display:none;">
+              <span id="edit-prod-img-tip" style="font-size:0.75rem;color:var(--text-muted);">支援 JPG/PNG/WebP 圖檔，選取後可即時預覽並自動寫入</span>
+            </div>
+          </div>
+
+
+          <div class="form-group">
+            <label class="form-label" for="edit-prod-specs">規格與尺寸說明</label>
+            <input type="text" id="edit-prod-specs" class="form-input" placeholder="例如：容量 320ml (11oz) / 轉印範圍 20cm × 8.5cm">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-prod-desc">商品詳細介紹</label>
+            <textarea id="edit-prod-desc" class="form-textarea" rows="3" placeholder="請填寫商品的工藝特色、材料與介紹..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeProductEditModal()">✕ 取消</button>
+          <button type="submit" class="btn btn-primary">
+            <span>💾 儲存商品設定</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
